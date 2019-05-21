@@ -41,8 +41,13 @@ private:
 
     MeasurementWidget *boostW;
     MeasurementWidget *lambdaW;
+    IatWidget *iatW;
     MaxEgtWidget *egtW;
-    BoostExtendedWidget *bexW;
+    Egt1Widget *egt1W;
+    Egt2Widget *egt2W;
+    Egt3Widget *egt3W;
+    Egt4Widget *egt4W;
+    // BoostExtendedWidget *bexW;
     DFWidget *dfW;
     DFExtendedWidget *dfexW;
     VR6Widget *vr6W;

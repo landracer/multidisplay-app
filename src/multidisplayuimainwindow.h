@@ -60,11 +60,11 @@ public slots:
     void disableReplay();
     void newDfBoostTransferFunction (int name);
 
-    void dfMapSelected100(bool b);
-    void dfMapSelected200(bool b);
-    void dfMapSelected250(bool b);
-    void dfMapSelected300(bool b);
-    void dfMapSelected400(bool b);
+    void dfMapSelected100(bool);
+    void dfMapSelected200(bool);
+    void dfMapSelected250(bool);
+    void dfMapSelected300(bool);
+    void dfMapSelected400(bool);
 
 protected:
     void closeEvent ( QCloseEvent * event );

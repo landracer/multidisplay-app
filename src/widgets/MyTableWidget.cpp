@@ -90,7 +90,7 @@ void MyTableWidget::paste() {
 //#define RPM_MIN_FOR_BOOST_CONTROL 2000
 //#define RPM_MAX_FOR_BOOST_CONTROL 9000
 #define RPM_MIN_FOR_BOOST_CONTROL 0
-#define RPM_MAX_FOR_BOOST_CONTROL 9000
+#define RPM_MAX_FOR_BOOST_CONTROL 10000
 
 N75TableWidget::N75TableWidget(quint8 mode, QWidget *parent) :
     MyTableWidget(parent), mode(mode)

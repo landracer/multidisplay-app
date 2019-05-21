@@ -197,7 +197,7 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     setAxisTitle(QwtPlot::yLeft, "Boost / Throttle / Lambda");
     setAxisScale(QwtPlot::yLeft, -1.0, 12.0);
     setAxisTitle(QwtPlot::yRight, "RPM");
-    setAxisScale(QwtPlot::yRight, 0, 7500);
+    setAxisScale(QwtPlot::yRight, 0, 10000);
     enableAxis(QwtPlot::yRight, true);
     setAxisAutoScale(QwtPlot::xBottom);
 
@@ -361,7 +361,7 @@ void VisualizationPlot::clear () {
 
 void VisualizationPlot::enableXBottomAutoScale() {
     setAxisScale(QwtPlot::yLeft, -1.5, 2.0);
-    setAxisScale(QwtPlot::yRight, 0, 7500);
+    setAxisScale(QwtPlot::yRight, 0, 10000);
 
     MdPlot::enableXBottomAutoScale();
 }

@@ -22,11 +22,11 @@ AndroidMainWindow::AndroidMainWindow(QWidget *parent) :
      t = QTime::currentTime();
      t.start();
 
-     grabGesture(Qt::TapGesture);
-     grabGesture(Qt::TapAndHoldGesture);
-     grabGesture(Qt::PanGesture);
-     grabGesture(Qt::PinchGesture);
-     grabGesture(Qt::SwipeGesture);
+   //  grabGesture(Qt::TapGesture);
+   //  grabGesture(Qt::TapAndHoldGesture);
+//     grabGesture(Qt::PanGesture);
+//     grabGesture(Qt::PinchGesture);
+//     grabGesture(Qt::SwipeGesture);
 
      connect (ui->actionMdSupportForum, SIGNAL(triggered()), this, SLOT(fireSupportForumIntent()) );
 
@@ -135,4 +135,7 @@ void AndroidMainWindow::fireSupportForumIntent()
 #endif
 }
 
-
+void AndroidMainWindow::on_pushButton_clicked()
+{
+     ui->actionBluetoothToggleState->setText("Bluetooth connect");
+}

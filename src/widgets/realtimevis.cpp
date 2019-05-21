@@ -26,11 +26,11 @@ RealTimeVis::RealTimeVis(QWidget *parent):
 
 #if !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
     bg1 = new BoostBarGraphWidget (this);
-//    bg2 = new LambdaBarGraphWidget (this);
-    bg2 = NULL;
+    bg2 = new LambdaBarGraphWidget (this);
+//    bg2 = NULL;
     bg3 = new RPMBarGraphWidget (this);
     h->addWidget(bg1, 1);
-//    h->addWidget(bg2, 1);
+    h->addWidget(bg2, 1);
     h->addWidget(bg3, 1);
 #else
     bg1=NULL;
@@ -76,25 +76,68 @@ RealTimeVis::RealTimeVis(QWidget *parent):
     fWidgets1->setLayout(v);
     h->addWidget(fWidgets1, 2);
 
-    boostW = new MeasurementWidget ( this, QString("Boost [bar]"), -1, 0, 2.0, Qt::darkGreen, Qt::green, Qt::red);
+    boostW = new MeasurementWidget ( this, QString("Boost [bar]"), -1, 0, 3, Qt::darkGreen, Qt::green, Qt::red);
     boostW->setDigits(4);
     boostW->setGeometry( QRect(100,100,100,100) );
     v->addWidget(boostW);
 
-    lambdaW = new MeasurementWidget ( this, QString("Lambda"), 0.85, 1.1, 1.36, Qt::green, Qt::yellow, Qt::red);
+    lambdaW = new MeasurementWidget ( this, QString("WBo2 Lambda"), 0.85, 1, 1.1, Qt::green, Qt::yellow, Qt::red);
     lambdaW->setDigits(3.8);
     lambdaW->setGeometry( QRect(100,100,100,100) );
     v->addWidget(lambdaW);
 
-    egtW = new MaxEgtWidget ( this, QString("EGT") );
+    // rAtTrax mod settings for PatriotLSR & RetributionLSR
+
+    iatW = new IatWidget ( this, QString("Intake Air Temp") );
+    iatW->setDigits(4);
+    iatW->setGeometry( QRect(100,100,100,100) );
+    v->addWidget(iatW);
+
+    egtW = new MaxEgtWidget ( this, QString("EGT WARNING") );
     egtW->setDigits(4);
     egtW->setGeometry( QRect(100,100,100,100) );
     v->addWidget(egtW);
 
-    bexW = new BoostExtendedWidget ( this, QString("N75 debug") );
-    bexW->setDigits(12);
-    bexW->setGeometry( QRect(100,100,100,100) );
-    v->addWidget(bexW);
+
+    // rAtTrax mod settings for PatriotLSR & RetributionLSR
+
+    QFrame *fWidgets3 = new QFrame (this);
+    fWidgets3->setContentsMargins(0,0,0,0);
+    QVBoxLayout *v9 = new QVBoxLayout();
+    //disable margin around the vbox layout
+    v9->setContentsMargins(0,0,0,0);
+    v9->setSpacing(0);
+    fWidgets3->setLayout(v9);
+    h->addWidget(fWidgets3, 1);
+
+    egt1W = new Egt1Widget ( this, QString("CYL1") );
+    egt1W->setDigits(4);
+    egt1W->setGeometry( QRect(100,100,100,100) );
+    v9->addWidget(egt1W);
+
+    egt2W = new Egt2Widget ( this, QString("CYL2") );
+    egt2W->setDigits(4);
+    egt2W->setGeometry( QRect(100,100,100,100) );
+    v9->addWidget(egt2W);
+
+    egt3W = new Egt3Widget ( this, QString("CYL3") );
+    egt3W->setDigits(4);
+    egt3W->setGeometry( QRect(100,100,100,100) );
+    v9->addWidget(egt3W);
+
+    egt4W = new Egt4Widget ( this, QString("CYL4") );
+    egt4W->setDigits(4);
+    egt4W->setGeometry( QRect(100,100,100,100) );
+    v9->addWidget(egt4W);
+
+  //  bexW = new BoostExtendedWidget ( this, QString("EGT4") ); //must remove-null bexW from other files or crash.. Gotta figure that out
+  //  bexW->setDigits(4);
+ //   bexW->setGeometry( QRect(100,100,100,100) );
+  //  v9->addWidget(bexW);
+
+
+
+    //end
 
 
     QFrame *fWidgets2 = new QFrame (this);
@@ -111,7 +154,7 @@ RealTimeVis::RealTimeVis(QWidget *parent):
     v3->addWidget(oilW);
     fuelW = new FuelPressureWidget (this, "Fuel Pres");
     v3->addWidget(fuelW);
-    rpmW = new MeasurementWidget (this, "RPM", 0,7200,7500, QColor(Qt::green), QColor(Qt::green), QColor(Qt::red));
+    rpmW = new MeasurementWidget (this, "RPM", 0,8500,8900, QColor(Qt::green), QColor(Qt::green), QColor(Qt::red));
     if ( mdMode() )
         v3->addWidget(rpmW);
     else {
@@ -153,10 +196,26 @@ void RealTimeVis::visualize (MdDataRecord *d) {
 
             boostW->setValue(  d->getSensorR()->getBoost() );
             lambdaW->setValue(  d->getSensorR()->getLambda() );
+
+            if (iatW)
+                iatW->setValue( d->getSensorR()->getVDOTemp1()  );
+
             QMap<QString, double> e = d->getSensorR()->getHighestEgt();
             egtW->setValue( e["temp"], (quint8) e["idx"]  );
 
-            bexW->setValue( d );
+            if (egt1W)
+                    egt1W->setValue( d->getSensorR()->getEgt0() );
+
+            if(egt2W)
+                    egt2W->setValue( d->getSensorR()->getEgt1() );
+
+            if (egt3W)
+                    egt3W->setValue( d->getSensorR()->getEgt2() );
+
+            if (egt4W)
+                    egt4W->setValue( d->getSensorR()->getEgt3() );
+
+            //bexW->setValue( d );
 
 //            dfw->setValue( 0, d->getSensorR()->df_flags, d->getSensorR()->df_iat, d->getSensorR()->df_ect,
 //                          d->getSensorR()->df_ignition, d->getSensorR()->df_ignition_total_retard,
@@ -201,7 +260,7 @@ void RealTimeVis::resizeEvent(QResizeEvent *event)
 void RealTimeVis::switchEcu()
 {
     QSettings settings;
-    QString ecuStr = settings.value("md/ecu", QVariant (QString("Digifant 1"))).toString();
+    QString ecuStr = settings.value("md/ecu", QVariant (QString("rAtTrax"))).toString();
     if ( ecuStr == "Digifant 1" ) {
         fDfWidget->setVisible(true);
         fVr6Widget->setVisible(false);
@@ -221,14 +280,14 @@ bool RealTimeVis::mdMode()
     bool mdMode = settings.value("md/md", QVariant (MDMODE)).toBool();
     if ( mdMode ) {
         egtW->show();
-        bexW->show();
+ //       bexW->show();
 
         efrW->show();
         oilW->show();
         fuelW->show();
     } else {
         egtW->hide();
-        bexW->hide();
+   //     bexW->hide();
 
         efrW->hide();
         oilW->hide();

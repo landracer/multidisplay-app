@@ -65,7 +65,7 @@ void V2SettingsDialog::showEvent ( QShowEvent * event ) {
     ui->actualizeVis1CheckBox->setChecked( AppEngine::getInstance()->getActualizeVis1() );
     ui->actualizeDashboardCheckBox->setChecked( AppEngine::getInstance()->getActualizeDashboard() );
     QSettings settings;
-    QString ecuStr = settings.value("md/ecu", QVariant (QString("Digifant 1"))).toString();
+    QString ecuStr = settings.value("md/ecu", QVariant (QString("rAtTrax"))).toString();
     bool found = false;
     for (uint i = 0 ; i < ui->comboBoxEcu->count() ; ++i) {
         if ( ui->comboBoxEcu->itemText(i) == ecuStr ) {

@@ -40,6 +40,9 @@ public slots:
 signals:
     void writeSettings();
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::AndroidMainWindow *ui;
 
@@ -48,7 +51,12 @@ private:
     MeasurementWidget* boostw;
     DFExtendedWidget *dfexw;
     MeasurementWidget *lw;
+    IatWidget *iatW;
     MaxEgtWidget *egtw;
+    Egt1Widget *egt1w;
+    Egt2Widget *egt2w;
+    Egt3Widget *egt3w;
+    Egt4Widget *egt4w;
 };
 
 #endif // ANDROIDMAINWINDOW_H

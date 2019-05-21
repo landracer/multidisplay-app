@@ -34,14 +34,14 @@ class BoostBarGraphWidget : public BarGraphWidget
 {
     Q_OBJECT
 public:
-    BoostBarGraphWidget ( QWidget * parent = 0, const QString & title = "Boost", const double & min = -1.5, const double & max = 2.0 , const double & alarm = 1.5   );
+    BoostBarGraphWidget ( QWidget * parent = 0, const QString & title = "Boost", const double & min = -1.5, const double & max = 3 , const double & alarm = 2.3   );
 };
 
 class RPMBarGraphWidget : public BarGraphWidget
 {
     Q_OBJECT
 public:
-    RPMBarGraphWidget ( QWidget * parent = 0, const QString & title = "RPM", const double & min = 0, const double & max = 8000 , const double & alarm = 7000   );
+    RPMBarGraphWidget ( QWidget * parent = 0, const QString & title = "RPM", const double & min = 0, const double & max = 10000 , const double & alarm = 9000   );
 };
 
 class LambdaBarGraphWidget : public BarGraphWidget
@@ -132,6 +132,21 @@ protected:
     bool recalcDataFontSize;
 };
 
+class IatWidget : public MeasurementWidget {
+    Q_OBJECT
+public:
+    IatWidget ( QWidget *parent, QString caption, double lo=0, double mid=100, double hi=200,
+                    QColor loColor=Qt::cyan, QColor midColor=QColor(Qt::green), QColor hiColor=Qt::red );
+
+    void setValue(double iat);
+    virtual void paint();
+
+protected:
+    quint8 idx;
+};
+
+
+
 class MaxEgtWidget : public MeasurementWidget {
     Q_OBJECT
 public:
@@ -143,6 +158,59 @@ public:
 
 protected:
     quint8 idx;
+};
+
+
+class Egt1Widget : public MeasurementWidget {
+    Q_OBJECT
+public:
+    Egt1Widget ( QWidget *parent, QString caption, double lo=0, double mid=600, double hi=920,
+                    QColor loColor=Qt::cyan, QColor midColor=QColor(Qt::green), QColor hiColor=Qt::red );
+
+    void setValue(double egt1);
+    virtual void paint();
+
+
+};
+
+
+
+class Egt2Widget : public MeasurementWidget {
+    Q_OBJECT
+public:
+    Egt2Widget ( QWidget *parent, QString caption, double lo=0, double mid=600, double hi=920,
+                    QColor loColor=Qt::cyan, QColor midColor=QColor(Qt::green), QColor hiColor=Qt::red );
+
+    void setValue(double egt2);
+    virtual void paint();
+
+};
+
+
+
+class Egt3Widget : public MeasurementWidget {
+    Q_OBJECT
+public:
+    Egt3Widget ( QWidget *parent, QString caption, double lo=0, double mid=600, double hi=920,
+                    QColor loColor=Qt::cyan, QColor midColor=QColor(Qt::green), QColor hiColor=Qt::red );
+
+    void setValue(double egt3);
+    virtual void paint();
+
+};
+
+
+
+class Egt4Widget : public MeasurementWidget {
+    Q_OBJECT
+public:
+    Egt4Widget ( QWidget *parent, QString caption, double lo=0, double mid=600, double hi=920,
+                    QColor loColor=Qt::cyan, QColor midColor=QColor(Qt::green), QColor hiColor=Qt::red );
+
+    void setValue(double egt4);
+    virtual void paint();
+
+
 };
 
 class BoostExtendedWidget : public MeasurementWidget {

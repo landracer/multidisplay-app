@@ -60,7 +60,7 @@ signals:
     void resultString (QString);
 
 public slots:
-    qreal dinTemp() {return din_temp;};
+    qreal dinTemp() {return din_temp;}
     void setDinTemp(int t) { din_temp = t; reCalculate();};
     void setDinAirPressure(int p) {din_air_pressure = p; reCalculate();};
     qreal dinAirPressure() { return din_air_pressure; };

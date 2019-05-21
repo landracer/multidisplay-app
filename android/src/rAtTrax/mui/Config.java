@@ -1,4 +1,4 @@
-package de.gummelinformatics.mui;
+package rAtTrax.mui;
 
 public class Config {
         

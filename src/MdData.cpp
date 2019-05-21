@@ -169,7 +169,7 @@ MdData::MdData (QMainWindow* mw_boost, QWidget* parent_boost, QMainWindow* mw_vi
     egtBlend = new ColorOverBlend (QColor( Qt::green), QColor(Qt::yellow), QColor(Qt::red), 880, 920, 940);
     efrBlend = new ColorOverBlend (QColor( Qt::green), QColor(Qt::yellow), QColor(Qt::red), 117000, 130000, 139000);
     knockBlend = new  ColorOverBlend (QColor( Qt::green), QColor(Qt::yellow), QColor(Qt::red), 0, 3, 6);
-    boostBlend = new ColorOverBlend (QColor( Qt::green), QColor(Qt::yellow), QColor(Qt::red), 1.5, 2.0, 2.4);
+    boostBlend = new ColorOverBlend (QColor( Qt::green), QColor(Qt::yellow), QColor(Qt::red), 1.5, 2.4, 3);
     iatBlend = new ColorOverBlend (QColor( Qt::white), QColor(Qt::yellow), QColor(Qt::red), 35, 50, 65);
     voltageBlend = new ColorOverBlend (QColor( Qt::red), QColor(Qt::yellow), QColor(Qt::white), 12, 12.8, 13.4);
     lambdaBlend = new ColorOverBlend (QColor( Qt::green), QColor(Qt::yellow), QColor(Qt::red), 0.69, 1, 1.36);

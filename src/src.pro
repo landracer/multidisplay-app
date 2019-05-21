@@ -94,7 +94,7 @@ HEADERS += evaluation/EvalSpectrogramPlot.h \
     MdGpsSerial.h \
     WotEventsDialog.h \
     widgets/Overlay.h \
-    com/MdAbstractCom.h \    
+    com/MdAbstractCom.h \
     com/MdBinaryProtocol.h \
     mobile/AndroidMainWindow.h \
     mobile/SwipeGestureRecognizer.h \
@@ -205,9 +205,9 @@ FORMS += evaluation/evaluationwindow.ui \
     DataTableConfigDialog.ui \
     V2PowerDialog.ui \
     WotEventsDialog.ui \
-    mobile/AndroidMainWindow.ui \
     mobile/AndroidDashboardDialog.ui \
-    mobile/AndroidN75Dialog.ui
+    mobile/AndroidN75Dialog.ui \
+    mobile/AndroidMainWindow.ui
 
 maemo5:FORMS += mobile/MobileEvaluationDialog.ui
 
@@ -293,7 +293,7 @@ win32:INCLUDEPATH = $$quote(..\libs\qextserialport\src) \
 
 
 
-RESOURCES += 
+RESOURCES +=
 
 #if build fails with "dpkg-shlibdeps: failure: couldn't find library libqwt.so.5 needed by debian/mui/usr/bin/mUI (its RPATH is '')."
 #uncomment line "dh_shlibdeps # Uncomment this line for use without Qt Creator"

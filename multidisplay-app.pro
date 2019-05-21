@@ -8,6 +8,11 @@ lessThan(QT_MAJOR_VERSION, 5) {
     SUBDIRS+=libs/qextserialport
 }
 
+android {
+    QT += androidextras
+}
+
+QMAKE_ANDROID_PLATFORM_INCDIR = $$NDK_ROOT/platforms/$$ANDROID_PLATFORM/arch-$$ANDROID_ARCHITECTURE/usr/lib
 
 OTHER_FILES += \
     qtc_packaging/debian_fremantle/rules \
@@ -115,3 +120,17 @@ OTHER_FILES += \
     android/src/org/kde/necessitas/origo/QtActivity.java \
     android/src/org/kde/necessitas/origo/QtApplication.java \
     android/version.xml
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/libs/qextserialport/src/release/ -lqextserialportd
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/libs/qextserialport/src/debug/ -lqextserialportd
+else:unix: LIBS += -L$$OUT_PWD/libs/qextserialport/src/ -lqextserialportd
+
+INCLUDEPATH += $$PWD/libs/qextserialport/src
+DEPENDPATH += $$PWD/libs/qextserialport/src
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/libs/qextserialport/src/release/libqextserialportd.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/libs/qextserialport/src/debug/libqextserialportd.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/libs/qextserialport/src/release/qextserialportd.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/libs/qextserialport/src/debug/qextserialportd.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/libs/qextserialport/src/libqextserialportd.a
+

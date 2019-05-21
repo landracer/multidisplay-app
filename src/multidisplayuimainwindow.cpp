@@ -126,19 +126,19 @@ void MultidisplayUIMainWindow::newDfBoostTransferFunction (int name) {
     settings.setValue ("Digifant1/MapSensor", name );
 }
 
-void MultidisplayUIMainWindow::dfMapSelected100(bool b) {
+void MultidisplayUIMainWindow::dfMapSelected100(bool) {
     AppEngine::getInstance()->setDfBoostTransferFunction( new TransferFunction100kpa() );
 }
-void MultidisplayUIMainWindow::dfMapSelected200(bool b) {
+void MultidisplayUIMainWindow::dfMapSelected200(bool) {
     AppEngine::getInstance()->setDfBoostTransferFunction( new TransferFunction200kpa() );
 }
-void MultidisplayUIMainWindow::dfMapSelected250(bool b) {
+void MultidisplayUIMainWindow::dfMapSelected250(bool) {
     AppEngine::getInstance()->setDfBoostTransferFunction( new TransferFunction250kpa() );
 }
-void MultidisplayUIMainWindow::dfMapSelected300(bool b) {
+void MultidisplayUIMainWindow::dfMapSelected300(bool) {
     AppEngine::getInstance()->setDfBoostTransferFunction( new TransferFunction300kpa() );
 }
-void MultidisplayUIMainWindow::dfMapSelected400(bool b) {
+void MultidisplayUIMainWindow::dfMapSelected400(bool) {
     AppEngine::getInstance()->setDfBoostTransferFunction( new TransferFunction400kpa() );
 }
 

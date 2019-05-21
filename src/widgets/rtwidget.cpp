@@ -362,6 +362,90 @@ uint MeasurementWidget::calcMaxFontPointSizeByGivenHeight( uint width, uint heig
 
     return cf.pointSize();
 }
+/* **************************************************** */
+
+
+IatWidget::IatWidget ( QWidget *parent, QString caption, double lo, double mid, double hi,
+                             QColor loColor, QColor midColor, QColor hiColor )
+    : MeasurementWidget (parent, caption, lo, mid, hi, loColor, midColor, hiColor) {
+}
+
+void IatWidget::setValue (double value) {
+    if ( this->value != value || this->idx != idx ) {
+        this->value = value;
+        this->idx = idx;
+        if ( value < 200 )
+            valTxt2Paint = QString::number(value);
+        else
+            valTxt2Paint = "nc";
+        valTxt2PaintL2 = QString::number(idx);
+        update();
+    }
+}
+
+void IatWidget::paint() {
+    QPainter painter;
+    painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QColor bc = overblend->overblend3(value);
+    painter.fillRect( QRect(0,0,size().width(),size().height()), bc);
+    painter.setBackgroundMode( Qt::TransparentMode );
+    painter.setBackground( QBrush ( bc ) );
+
+    painter.setFont(textFont);
+
+    QString max_caption = caption;
+    if ( valTxt2PaintL2 != "" )
+        max_caption += " max " +  valTxt2PaintL2;
+    uint h = QFontMetrics(textFont).lineSpacing();
+//    h+= QFontMetrics(textFont).leading();
+    painter.drawText( QPoint(0,h), max_caption );
+    h += QFontMetrics(textFont).leading();
+
+
+    if ( recalcDataFontSize ) {
+        uint dataFontPointSize = calcMaxFontPointSizeByGivenHeight (size().width(), size().height(), 1, digits);
+        dataFont.setPointSize(dataFontPointSize);
+        recalcDataFontSize = false;
+    }
+
+    painter.setFont(dataFont);
+
+//    int m = ( size().height() - h - QFontMetrics(dataFont).lineSpacing() ) / 2;
+//    if ( m>0 )
+//        h += m;
+
+    if ( valTxt2Paint != "" )
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                          Qt::AlignLeft, valTxt2Paint );
+    else {
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                                    Qt::AlignLeft, QString::number(value) );
+    }
+
+//    if ( valTxt2Paint != "" )
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, valTxt2Paint );
+//    else
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, QString::number(value) );
+
+    if ( valTxt2PaintL2 != "" ) {
+        painter.setFont(textFont);
+#ifndef Q_WS_MAEMO_5
+        //        painter.drawText( QRect(0, (wideMode==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20, this->size().width(), this->size().height() ),
+        //                          Qt::AlignRight, valTxt2PaintL2 );
+        int h = (lowHeigth==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20;
+        //no space for a third line on n900
+        painter.drawText( QRect(0, h , this->size().width(), this->size().height()-h ),
+                          Qt::AlignRight, valTxt2PaintL2 );
+#endif
+    }
+    painter.end();
+}
+
+/* **************************************************** */
 
 
 /* **************************************************** */
@@ -445,6 +529,324 @@ void MaxEgtWidget::paint() {
     }
     painter.end();
 }
+
+/* **************************************************** */
+
+Egt1Widget::Egt1Widget ( QWidget *parent, QString caption, double lo, double mid, double hi,
+                             QColor loColor, QColor midColor, QColor hiColor )
+    : MeasurementWidget (parent, caption, lo, mid, hi, loColor, midColor, hiColor) {
+}
+
+void Egt1Widget::setValue (double egt1)
+{
+
+    value = egt1;
+    valTxt2Paint = QString::number(value);
+    update();
+
+
+
+}
+
+void Egt1Widget::paint() {
+    QPainter painter;
+    painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QColor bc = overblend->overblend3(value);
+    painter.fillRect( QRect(0,0,size().width(),size().height()), bc);
+    painter.setBackgroundMode( Qt::TransparentMode );
+    painter.setBackground( QBrush ( bc ) );
+
+    painter.setFont(textFont);
+
+    QString max_caption = caption;
+    if ( valTxt2PaintL2 != "" )
+        max_caption += " max " +  valTxt2PaintL2;
+    uint h = QFontMetrics(textFont).lineSpacing();
+//    h+= QFontMetrics(textFont).leading();
+    painter.drawText( QPoint(0,h), max_caption );
+    h += QFontMetrics(textFont).leading();
+
+
+    if ( recalcDataFontSize ) {
+        uint dataFontPointSize = calcMaxFontPointSizeByGivenHeight (size().width(), size().height(), 1, digits);
+        dataFont.setPointSize(dataFontPointSize);
+        recalcDataFontSize = false;
+    }
+
+    painter.setFont(dataFont);
+
+//    int m = ( size().height() - h - QFontMetrics(dataFont).lineSpacing() ) / 2;
+//    if ( m>0 )
+//        h += m;
+
+    if ( valTxt2Paint != "" )
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                          Qt::AlignLeft, valTxt2Paint );
+    else {
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                                    Qt::AlignLeft, QString::number(value) );
+    }
+
+//    if ( valTxt2Paint != "" )
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, valTxt2Paint );
+//    else
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, QString::number(value) );
+
+    if ( valTxt2PaintL2 != "" ) {
+        painter.setFont(textFont);
+#ifndef Q_WS_MAEMO_5
+        //        painter.drawText( QRect(0, (wideMode==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20, this->size().width(), this->size().height() ),
+        //                          Qt::AlignRight, valTxt2PaintL2 );
+        int h = (lowHeigth==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20;
+        //no space for a third line on n900
+        painter.drawText( QRect(0, h , this->size().width(), this->size().height()-h ),
+                          Qt::AlignRight, valTxt2PaintL2 );
+#endif
+    }
+    painter.end();
+}
+
+
+
+
+/* **************************************************** */
+
+Egt2Widget::Egt2Widget ( QWidget *parent, QString caption, double lo, double mid, double hi,
+                             QColor loColor, QColor midColor, QColor hiColor )
+    : MeasurementWidget (parent, caption, lo, mid, hi, loColor, midColor, hiColor) {
+}
+
+void Egt2Widget::setValue (double egt2)
+{
+    value = egt2;
+    valTxt2Paint = QString::number(value);
+    update();
+}
+
+void Egt2Widget::paint() {
+    QPainter painter;
+    painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QColor bc = overblend->overblend3(value);
+    painter.fillRect( QRect(0,0,size().width(),size().height()), bc);
+    painter.setBackgroundMode( Qt::TransparentMode );
+    painter.setBackground( QBrush ( bc ) );
+
+    painter.setFont(textFont);
+
+    QString max_caption = caption;
+    if ( valTxt2PaintL2 != "" )
+        max_caption += " max " +  valTxt2PaintL2;
+    uint h = QFontMetrics(textFont).lineSpacing();
+//    h+= QFontMetrics(textFont).leading();
+    painter.drawText( QPoint(0,h), max_caption );
+    h += QFontMetrics(textFont).leading();
+
+
+    if ( recalcDataFontSize ) {
+        uint dataFontPointSize = calcMaxFontPointSizeByGivenHeight (size().width(), size().height(), 1, digits);
+        dataFont.setPointSize(dataFontPointSize);
+        recalcDataFontSize = false;
+    }
+
+    painter.setFont(dataFont);
+
+//    int m = ( size().height() - h - QFontMetrics(dataFont).lineSpacing() ) / 2;
+//    if ( m>0 )
+//        h += m;
+
+    if ( valTxt2Paint != "" )
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                          Qt::AlignLeft, valTxt2Paint );
+    else {
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                                    Qt::AlignLeft, QString::number(value) );
+    }
+
+//    if ( valTxt2Paint != "" )
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, valTxt2Paint );
+//    else
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, QString::number(value) );
+
+    if ( valTxt2PaintL2 != "" ) {
+        painter.setFont(textFont);
+#ifndef Q_WS_MAEMO_5
+        //        painter.drawText( QRect(0, (wideMode==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20, this->size().width(), this->size().height() ),
+        //                          Qt::AlignRight, valTxt2PaintL2 );
+        int h = (lowHeigth==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20;
+        //no space for a third line on n900
+        painter.drawText( QRect(0, h , this->size().width(), this->size().height()-h ),
+                          Qt::AlignRight, valTxt2PaintL2 );
+#endif
+    }
+    painter.end();
+}
+
+
+
+
+/* **************************************************** */
+
+Egt3Widget::Egt3Widget ( QWidget *parent, QString caption, double lo, double mid, double hi,
+                             QColor loColor, QColor midColor, QColor hiColor )
+    : MeasurementWidget (parent, caption, lo, mid, hi, loColor, midColor, hiColor) {
+}
+
+void Egt3Widget::setValue (double egt3)
+{
+    value = egt3;
+    valTxt2Paint = QString::number(value);
+    update();
+}
+
+void Egt3Widget::paint() {
+    QPainter painter;
+    painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QColor bc = overblend->overblend3(value);
+    painter.fillRect( QRect(0,0,size().width(),size().height()), bc);
+    painter.setBackgroundMode( Qt::TransparentMode );
+    painter.setBackground( QBrush ( bc ) );
+
+    painter.setFont(textFont);
+
+    QString max_caption = caption;
+    if ( valTxt2PaintL2 != "" )
+        max_caption += " max " +  valTxt2PaintL2;
+    uint h = QFontMetrics(textFont).lineSpacing();
+//    h+= QFontMetrics(textFont).leading();
+    painter.drawText( QPoint(0,h), max_caption );
+    h += QFontMetrics(textFont).leading();
+
+
+    if ( recalcDataFontSize ) {
+        uint dataFontPointSize = calcMaxFontPointSizeByGivenHeight (size().width(), size().height(), 1, digits);
+        dataFont.setPointSize(dataFontPointSize);
+        recalcDataFontSize = false;
+    }
+
+    painter.setFont(dataFont);
+
+//    int m = ( size().height() - h - QFontMetrics(dataFont).lineSpacing() ) / 2;
+//    if ( m>0 )
+//        h += m;
+
+    if ( valTxt2Paint != "" )
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                          Qt::AlignLeft, valTxt2Paint );
+    else {
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                                    Qt::AlignLeft, QString::number(value) );
+    }
+
+//    if ( valTxt2Paint != "" )
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, valTxt2Paint );
+//    else
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, QString::number(value) );
+
+    if ( valTxt2PaintL2 != "" ) {
+        painter.setFont(textFont);
+#ifndef Q_WS_MAEMO_5
+        //        painter.drawText( QRect(0, (wideMode==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20, this->size().width(), this->size().height() ),
+        //                          Qt::AlignRight, valTxt2PaintL2 );
+        int h = (lowHeigth==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20;
+        //no space for a third line on n900
+        painter.drawText( QRect(0, h , this->size().width(), this->size().height()-h ),
+                          Qt::AlignRight, valTxt2PaintL2 );
+#endif
+    }
+    painter.end();
+}
+
+
+
+
+/* **************************************************** */
+
+Egt4Widget::Egt4Widget ( QWidget *parent, QString caption, double lo, double mid, double hi,
+                             QColor loColor, QColor midColor, QColor hiColor )
+    : MeasurementWidget (parent, caption, lo, mid, hi, loColor, midColor, hiColor) {
+}
+
+void Egt4Widget::setValue (double egt4)
+{
+    value = egt4;
+    valTxt2Paint = QString::number(value);
+    update();
+}
+
+void Egt4Widget::paint() {
+    QPainter painter;
+    painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QColor bc = overblend->overblend3(value);
+    painter.fillRect( QRect(0,0,size().width(),size().height()), bc);
+    painter.setBackgroundMode( Qt::TransparentMode );
+    painter.setBackground( QBrush ( bc ) );
+
+    painter.setFont(textFont);
+
+    QString max_caption = caption;
+    if ( valTxt2PaintL2 != "" )
+        max_caption += " max " +  valTxt2PaintL2;
+    uint h = QFontMetrics(textFont).lineSpacing();
+//    h+= QFontMetrics(textFont).leading();
+    painter.drawText( QPoint(0,h), max_caption );
+    h += QFontMetrics(textFont).leading();
+
+
+    if ( recalcDataFontSize ) {
+        uint dataFontPointSize = calcMaxFontPointSizeByGivenHeight (size().width(), size().height(), 1, digits);
+        dataFont.setPointSize(dataFontPointSize);
+        recalcDataFontSize = false;
+    }
+
+    painter.setFont(dataFont);
+
+//    int m = ( size().height() - h - QFontMetrics(dataFont).lineSpacing() ) / 2;
+//    if ( m>0 )
+//        h += m;
+
+    if ( valTxt2Paint != "" )
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                          Qt::AlignLeft, valTxt2Paint );
+    else {
+        painter.drawText( QRect(0, (lowHeigth==false ? 0 : 0) + h, this->size().width(), this->size().height() ),
+                                    Qt::AlignLeft, QString::number(value) );
+    }
+
+//    if ( valTxt2Paint != "" )
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, valTxt2Paint );
+//    else
+//        painter.drawText( QRect(0, (lowHeigth==false ? textFont.pointSize() : 0) + 10, this->size().width(), this->size().height() ),
+//                          Qt::AlignLeft, QString::number(value) );
+
+    if ( valTxt2PaintL2 != "" ) {
+        painter.setFont(textFont);
+#ifndef Q_WS_MAEMO_5
+        //        painter.drawText( QRect(0, (wideMode==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20, this->size().width(), this->size().height() ),
+        //                          Qt::AlignRight, valTxt2PaintL2 );
+        int h = (lowHeigth==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20;
+        //no space for a third line on n900
+        painter.drawText( QRect(0, h , this->size().width(), this->size().height()-h ),
+                          Qt::AlignRight, valTxt2PaintL2 );
+#endif
+    }
+    painter.end();
+}
+
 
 
 

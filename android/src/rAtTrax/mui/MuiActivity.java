@@ -1,4 +1,4 @@
-package de.gummelinformatics.mui;
+package rAtTrax.mui;
 
 import org.qtproject.qt5.android.bindings.QtApplication;
 import org.qtproject.qt5.android.bindings.QtActivity;

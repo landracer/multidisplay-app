@@ -97,9 +97,9 @@ public:
     EvaluationWindow* getEvalWinBoostLambdaSpectro() { return evalWinBoostLambdaSpectro; }
 
     //! can be NULL on PC
-    MobileGPS *getGps() { return mGps; };
+    MobileGPS *getGps() { return mGps; }
     //! can be NULL on PC
-    Accelerometer *getAccelerometer () { return accelMeter; };
+    Accelerometer *getAccelerometer () { return accelMeter; }
 
     TransferFunction* getDfBoostTransferFunction() { return dfBoostTransferFunction; }
     void setDfBoostTransferFunction( TransferFunction* t ) { delete (dfBoostTransferFunction); dfBoostTransferFunction=t; emit newDfBoostTransferFunction (dfBoostTransferFunction->name()); }
