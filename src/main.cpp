@@ -23,7 +23,6 @@
 #include <QtGui>
 #include <QApplication>
 #include <QDebug>
-#include <QWidget>
 
 #include <cxxabi.h>
 #include <iostream>
@@ -31,91 +30,19 @@
 int main(int argc, char *argv[]) {
 
     try {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
         QApplication::setStyle(QString("Plastique"));
 #endif
 
-#ifdef DIGIFANTAPP
-        QApplication::setOrganizationName("gummel-informatics");
-        QCoreApplication::setApplicationName("digifantview");
-        QSettings settings;
-        settings.setValue ("md/md", QVariant(false));
-#else
         QApplication::setOrganizationName("MultiDisplay");
         QCoreApplication::setApplicationName("UI");
-        QSettings settings;
-        settings.setValue ("md/md", QVariant(true));
-#endif
+
         QApplication a(argc, argv);
-        //dont works
-        //a.setStyleSheet( "GLGauge {color:black}");
-
-#if defined ( Q_OS_ANDROID)
-    {
-        //FIX android dark holo theme default has light background and text color! -> set background to black!
-        QColor fr = a.palette().color(QPalette::Window);
-        //light 243 dark 0
-        //QPushButton { color: yellow; }
-        auto teststyle = R"(
-                QWidget { background-color: black; }
-                QComboBox { background-color: black }
-
-                QPushButton { background-color: black }
-                       )";
-        //qDebug() << fr.lightness();
-        if ( fr.lightness() == 0 ) {
-            a.setStyleSheet(teststyle);
-        }
-    }
-#endif
-
-#if defined ( Q_OS_IOS)
-    {
-        QColor fr = a.palette().color(QPalette::Window);
-        //light 243 dark 0
-        //QPushButton { color: yellow; }
-        auto teststyle = R"(
-                QWidget { background-color: black; }
-                QComboBox { background-color: black; }
-
-                QPushButton { background-color: black; }
-            
-                MeasurementWidget { color: black; }
-                DFExtendedWidget { color: black; }
-                       )";
-        //qDebug() << "lightness=" << fr.lightness();
-        if ( fr.lightness() == 0 ) {
-            a.setStyleSheet(teststyle);
-        }
-    }
-#endif
-
-#if defined ( Q_OS_MACX)
-    {
-        QColor fr = a.palette().color(QPalette::Window);
-        //light ?
-        //dark 50
-        auto teststyle = R"(
-                MeasurementWidget { color: black; }
-                       )";
-        //qDebug() << "lightness=" << fr.lightness();
-        if ( fr.lightness() <= 50 ) {
-            a.setStyleSheet(teststyle);
-        }
-    }
-#endif
-        
-#if defined (Q_OS_IOS)
-    //https://doc.qt.io/qt-5/qtbluetooth-index.html
-    //QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth.ios = true"));
-#endif
-
-
 
         AppEngine *e = AppEngine::getInstance();
         e->show();
 
-//#ifndef Q_WS_MAEMO_5
+//#ifndef QT_MAEMO5_ENABLE
         //Windows / Linux Desktop GUI
     //    MultidisplayUIMainWindow mw;
     //    mw.show();

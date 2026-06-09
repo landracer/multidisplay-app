@@ -21,8 +21,6 @@
 #include "visconfigdialog.h"
 
 #include <QDebug>
-#include <qwt_text.h>
-#include <QPen>
 
 VisConfigDialog::VisConfigDialog(QWidget *parent)
     : QDialog(parent) {
@@ -45,9 +43,9 @@ VisConfigDialog::VisConfigDialog(QWidget *parent)
 //		}
 //	}
 
-	connect ( ui.OkButton, SIGNAL(clicked()), this, SLOT(accept()) );
-	connect ( ui.CancelButton, SIGNAL(clicked()), this, SLOT(reject()) );
-	connect ( ui.VisConfigTable, SIGNAL(cellChanged(int,int)), this, SLOT(cellChanged(int,int)) );
+	connect ( ui.OkButton, &QPushButton::clicked, this, &VisConfigDialog::accept );
+	connect ( ui.CancelButton, &QPushButton::clicked, this, &VisConfigDialog::reject );
+	connect ( ui.VisConfigTable, &QTableWidget::cellChanged, this, &VisConfigDialog::cellChanged );
 }
 
 VisConfigDialog::~VisConfigDialog() {

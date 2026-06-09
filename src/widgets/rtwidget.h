@@ -5,19 +5,10 @@
 #include <QPen>
 #include <QColor>
 #include <QFrame>
-#include <QTapGesture>
 
 #include "ColorOverBlend.h"
-#include "Map16x1.h"
 
-//deprecated!
 #include <QtOpenGL>
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <QOpenGLWidget>
-#else
-#include <QOpenGLWidget>
-#endif
 
 class QwtThermo;
 class MdDataRecord;
@@ -38,26 +29,12 @@ protected:
     QwtThermo *thermo;
 };
 
-#if defined (DIGIFANTVANAPP)
-    class BoostBarGraphWidget : public BarGraphWidget
-    {
-        Q_OBJECT
-    public:
-        BoostBarGraphWidget ( QWidget * parent = nullptr, const QString & title = "AFM-Volts", const double & min = 0.1, const double & max = 5.0 , const double & alarm = 4.5   );
-    };
-    class RPMBarGraphWidget : public BarGraphWidget
-    {
-        Q_OBJECT
-    public:
-        RPMBarGraphWidget ( QWidget * parent = nullptr, const QString & title = "RPM", const double & min = 0, const double & max = 6000 , const double & alarm = 4500   );
-    };
 
-#else
 class BoostBarGraphWidget : public BarGraphWidget
 {
     Q_OBJECT
 public:
-    BoostBarGraphWidget ( QWidget * parent = 0, const QString & title = "Boost", const double & min = -1, const double & max = 2.2 , const double & alarm = 1.5   );
+    BoostBarGraphWidget ( QWidget * parent = 0, const QString & title = "Boost", const double & min = -1.5, const double & max = 2.0 , const double & alarm = 1.5   );
 };
 
 class RPMBarGraphWidget : public BarGraphWidget
@@ -66,7 +43,6 @@ class RPMBarGraphWidget : public BarGraphWidget
 public:
     RPMBarGraphWidget ( QWidget * parent = 0, const QString & title = "RPM", const double & min = 0, const double & max = 8000 , const double & alarm = 7000   );
 };
-#endif
 
 class LambdaBarGraphWidget : public BarGraphWidget
 {
@@ -83,37 +59,12 @@ protected:
     bool wot;
 };
 
-/*
- * QGLWidget deprecated ; QOpenGLWidget draws only black screen!
- *
- * replay performance
- * qframe / qwidget macos 15-20% ios 100% android 100%
- * QGLWidget macos 10-15%  ios 31%
- * QOpenGLWidget macos black screen
- *
- */
-#if !defined (Q_WS_MAEMO_5) && !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-class GLGauge : public QGLWidget {
-#else
-//2022-06 Qt-6.4 QGLWidget still broken
-//class GLGauge : public QOpenGLWidget {
+
+#if !defined (QT_MAEMO5_ENABLE) && !defined(Q_OS_ANDROID)
 class GLGauge : public QWidget {
-#endif
-//class GLGauge : public QGLWidget {
-//class GLGauge : public QWidget {
-#endif
-#if defined (Q_OS_IOS)
-class GLGauge : public QGLWidget {
-#endif
-#if defined (Q_OS_ANDROID)
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    class GLGauge : public QGLWidget {
+//class GLGauge : public QFrame {
 #else
-    //2022-06 Qt-6.3 QGLWidget still black
-    //class GLGauge : public QOpenGLWidget {
-    class GLGauge : public QWidget {
-#endif
+class GLGauge : public QFrame {
 #endif
 
 public:
@@ -181,38 +132,14 @@ protected:
     bool recalcDataFontSize;
 };
 
-class LambdaExtWidget : public MeasurementWidget {
-    Q_OBJECT
-public:
-    LambdaExtWidget ( QWidget *parent );
-
-    virtual void setValue(MdDataRecord *d);
-    virtual void paint() override ;
-
-signals:
-    void showStatusMessage ( const QString& );
-
-protected:
-    bool event(QEvent *event) override;
-    bool tapTriggered(QTapGesture *pTap);
-    bool tapAndHoldTriggered(QTapAndHoldGesture *pTapHold);
-    bool gestureEvent(QGestureEvent *event);
-
-    bool wideBand = true;
-    bool colorOnlyWOT = false;
-    quint8 load = 100;
-    quint8 idx;
-    QPointer<Map16x1_NbLambda> nbLambdaMap = nullptr;
-};
-
 class MaxEgtWidget : public MeasurementWidget {
     Q_OBJECT
 public:
-    MaxEgtWidget ( QWidget *parent, QString caption, double lo=0, double mid=800, double hi=920,
+    MaxEgtWidget ( QWidget *parent, QString caption, double lo=0, double mid=600, double hi=920,
                     QColor loColor=Qt::cyan, QColor midColor=QColor(Qt::green), QColor hiColor=Qt::red );
 
-    virtual void setValue(double egt, quint8 idx);
-    virtual void paint() override;
+    void setValue(double egt, quint8 idx);
+    virtual void paint();
 
 protected:
     quint8 idx;

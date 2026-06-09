@@ -23,7 +23,6 @@
 
 #include <qwt_series_data.h>
 #include <QVector>
-#include <QList>
 
 class QwtPlotCurve;
 
@@ -43,7 +42,7 @@ class iResultList {
 public:
 	virtual ~iResultList ();
 
-    QList<iResult*> resultList = QList<iResult*>();
+	QList<iResult*> resultList;
 };
 
 /**

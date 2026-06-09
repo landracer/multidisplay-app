@@ -6,7 +6,7 @@
 
 #include <QDebug>
 #include <AppEngine.h>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QTimer>
 #include <QSettings>
 
@@ -24,17 +24,10 @@ MdBinaryProtocol::MdBinaryProtocol(QObject *parent, MdData *data, MdAbstractCom 
     dfEctMap = new Map16x1_NTC_ECT();
     dfIatMap = new Map16x1_NTC_IAT();
     dfVoltageMap = new Map16x1_Voltage();
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    timeHelper = QTime::currentTime();
-    timeHelper.start();
-    freqMeasure = QTime::currentTime();
-    freqMeasure.start();
-#else
     timeHelper.start();
     freqMeasure.start();
-#endif
 
-    QSettings settings;
+    QSettings settings("MultiDisplay", "UI");
     if ( settings.value("debug/generate_data", QVariant(false)).toBool() ) {
         debugDataGenTimer = new QTimer(this);
         connect ( debugDataGenTimer, SIGNAL(timeout()), this, SLOT(debugDataGenUpdate()) );
@@ -61,16 +54,6 @@ MdBinaryProtocol::~MdBinaryProtocol() {
         delete sdata;
 }
 
-void MdBinaryProtocol::changeComInstance (MdAbstractCom* c) {
-    if ( ac != nullptr) {
-        delete ac;
-        ac = c;
-        connect ( ac, SIGNAL(bytesRead(QByteArray)), this, SLOT(incomingData(QByteArray)) );
-        connect ( ac, SIGNAL(portClosed()), this, SLOT(onPortClosed()) );
-        connect ( ac, SIGNAL(portOpened()), this, SLOT(onPortOpened()) );
-    }
-}
-
 void MdBinaryProtocol::closePort()
 {
     if ( ac )
@@ -79,8 +62,8 @@ void MdBinaryProtocol::closePort()
 
 bool MdBinaryProtocol::changePortSettings (QString sport, QString speed) {
     if (ac)
-        return ac->changePortSettings(sport,speed);
-    return false;
+        ac->changePortSettings(sport,speed);
+    return true;
 }
 
 void MdBinaryProtocol::onPortOpened()
@@ -142,7 +125,7 @@ void MdBinaryProtocol::incomingData(const QByteArray &bytes) {
                     if ( d != MD_FRAMEEND ) {
                             discarded_frames++;
                             if ( discarded_frames % 100 == 0 )
-                                qDebug() << "(WARN) frame discarded! low bt signal quality? expected length=" << framelength << " #discarded frames=" << discarded_frames << " d=" << d << " data=" << sdata->toHex();
+                                qDebug() << "(WARN) frame discarded! expected framelength=" << framelength << " #discarded frames=" << discarded_frames << " d=" << d << " data=" << sdata->toHex();
                             status = MD_STATUS_FRAMEERROR;
                     } else {
                             rcvData.asBytes[index] = d;
@@ -311,8 +294,7 @@ void MdBinaryProtocol::convertReceivedMd2Frame() {
     double  lambda = fixed_b100_2double( quint16 ( rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8) ) );
     base +=2;
 
-    //double  lmm = fixed_b100_2double( quint16 ( rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8) ) );
-    double  lmm = ( quint16 ( rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8) ) );
+    double  lmm = fixed_b100_2double( quint16 ( rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8) ) );
     base +=2;
 
     double  casetemp = fixed_b100_2double( quint16 ( rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8) ) );
@@ -339,11 +321,11 @@ void MdBinaryProtocol::convertReceivedMd2Frame() {
     base +=2;
 
     //FIXME pressure / temp ints???
-    quint16 vdo_pres1_i = rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8);
+    quint16 vdo_pres1 = rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8);
     base +=2;
-    quint16 vdo_pres2_i = rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8);
+    quint16 vdo_pres2 = rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8);
     base +=2;
-    quint16 vdo_pres3_i = rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8);
+    quint16 vdo_pres3 = rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8);
     base +=2;
     quint16 vdo_temp1 = rcvData.asBytes[base+0] + (rcvData.asBytes[base+1] << 8);
     base +=2;
@@ -379,9 +361,9 @@ void MdBinaryProtocol::convertReceivedMd2Frame() {
 
 //    qDebug() << "efr_speed raw=" << efr_speed_tmp << " usec rise2fall=" << efr_speed_tmp/2 << " usec rise2rise "
 //             << efr_speed_tmp << " freq=" << 1000000/efr_speed_tmp << "Hz speed=" << efr_speed << " RPM"
-//             << " DataOut " << ((millisElapsed > 0) ? 10000/millisElapsed : -1) << " Hz";
+//             << " DataOut " << ((millisElapsed > 0) ? 1000/millisElapsed : -1) << " Hz";
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     ;
 #else
     qDebug() << " DataOut " << ((millisElapsed > 0) ? 1000/millisElapsed : -1) << " Hz";
@@ -469,58 +451,17 @@ void MdBinaryProtocol::convertReceivedMd2Frame() {
     base += 1;
     if ( df_active_frame < 255 )
         df_connected = true;
-    double df_ignition = (df_ign_raw *-0.3515625)+78;
-#if defined (DIGIFANTVANAPP)
-    double df_ignition_total_retard = 0.0 ; //no retard because no knock sensor
-    double df_ect = dfEctMap->mapValue( df_ect_raw );
-    // Note: in Vanagon ECU voltage divder resistor = 8200 ohms so same transfer function as ECT
-    double df_iat = dfEctMap->mapValue( df_iat_raw );
-    // Note: no launch control in Vanagon ECU so we are not changing the timing
 
-    double df_voltage = dfVoltageMap->mapValue(df_voltage_raw);
-    //or
-    //double df_voltage = df_voltage_raw*(17800+4740)/(51.0*4740);
-#else
     double df_ignition_total_retard = ( df_cyl1_knock_retard + df_cyl2_knock_retard + df_cyl3_knock_retard + df_cyl4_knock_retard ) * 0.351563 ;
     double df_ect = dfEctMap->mapValue( df_ect_raw );
     double df_iat = dfIatMap->mapValue( df_iat_raw );
+    double df_ignition = (df_ign_raw *-0.351563)+73.9;
     if ( (df_lc_flags & 3)==1 )
-        df_ignition = (2*df_ign_raw *-0.3515625)+78;
+        df_ignition = (2*df_ign_raw *-0.351563)+73.9;
     double df_voltage = dfVoltageMap->mapValue(df_voltage_raw);
-#endif
-
-#if defined (DIGIFANTAPP)
-    //Ladedruck in Bar aus DF Druck berechnen
-    boost = (AppEngine::getInstance()->getDfBoostTransferFunction()->map(df_boost_raw) / 100) - 1;
-    //wideband lambda transfer function!
-    //df interface überträgt lambda raw voltage in lmm daten!
-    if ( AppEngine::getInstance()->getWbLamdaTransferFunction()->name() != -99 )
-        lambda = AppEngine::getInstance()->getWbLamdaTransferFunction()->map (lmm);
-    // qDebug() << "vdo: " << vdo_pres1_i << " " << vdo_pres2_i << " " << vdo_pres3_i;
-
-    //qDebug() << "vdo: " << vdo_pres1_i << " " << vdo_pres2_i << " " << vdo_pres3_i;
-    // TODO: solution for digifant app on mdv2
-    double vdo_pres1 = AppEngine::getInstance()->getVdo1Map()->mapValue10Bit(vdo_pres1_i);
-    double vdo_pres2 = AppEngine::getInstance()->getVdo2Map()->mapValue10Bit(vdo_pres2_i);
-    double vdo_pres3 = AppEngine::getInstance()->getVdo3Map()->mapValue10Bit(vdo_pres3_i);
-
-    if ( df_flags & 8 && throttle == 0)
-        throttle = 100;
-    else {
-        if ( df_flags & 0x10 && throttle == 0)
-            throttle = 0;
-        else
-            if ( throttle == 0 )
-                throttle = 50;
-    }
-#else
-    double vdo_pres1 = vdo_pres1_i;
-    double vdo_pres2 = vdo_pres2_i;
-    double vdo_pres3 = vdo_pres3_i;
-#endif
 
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     ;
 #else
     if ( ! df_connected ) {

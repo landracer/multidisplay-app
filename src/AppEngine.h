@@ -29,12 +29,9 @@
     #include <QtGui/QMainWindow>
 #endif
 
-#include <QPointer>
-
 #include "com/MdAbstractCom.h"
 #include "com/MdBinaryProtocol.h"
 #include "TransferFunction.h"
-#include "Map16x1.h"
 #include "serialoptions.h"
 
 #define MDMODE true
@@ -63,6 +60,7 @@ class N75OptionsDialog;
 class V2N75SetupDialog;
 class N75PidSettingsWidget;
 class V2SettingsDialog;
+class Map16x1;
 class MobileEvaluationDialog;
 class GearSettingsDialog;
 class AboutDialog;
@@ -93,7 +91,6 @@ public:
     void setActualizeDashboard( bool n ) { actualizeDashboard = n; }
 
     MdBinaryProtocol* getMdBinaryProtocl() { return mds; }
-    MdAbstractCom* getMdCom() { return mdcom; }
 
     EvaluationWindow* getEvalWinBoostLambda () { return evalWinBoostLambda; }
     EvaluationWindow* getEvalWinRPMBoost() { return evalWinRPMBoost; }
@@ -106,13 +103,6 @@ public:
 
     TransferFunction* getDfBoostTransferFunction() { return dfBoostTransferFunction; }
     void setDfBoostTransferFunction( TransferFunction* t ) { delete (dfBoostTransferFunction); dfBoostTransferFunction=t; emit newDfBoostTransferFunction (dfBoostTransferFunction->name()); }
-
-    TransferFunction* getWbLamdaTransferFunction() { return wbLambdaTransferFunction; }
-    void setWbLambdaTransferFunction( TransferFunction* t ) { delete (wbLambdaTransferFunction); wbLambdaTransferFunction=t; }
-
-    Map16x1* getVdo1Map() { return mapVdo1; };
-    Map16x1* getVdo2Map() { return mapVdo2; };
-    Map16x1* getVdo3Map() { return mapVdo3; };
 
     quint8 numConnectedTypeK;
 
@@ -148,10 +138,6 @@ public slots:
 
     void replayData();
 
-    //! used by AndroidMainWindows eventhandler to re-create the dialog after destroy on close
-    void reCreateDialogsAndroidFix();
-    void androidStartLocationQuery();
-
 protected:
     void closeEvent ( QCloseEvent * event );
 
@@ -163,7 +149,6 @@ private:
     void setupMobile();
     void setupMaemo();
     void setupAndroid();
-    void setupIos();
 
     void readSettings ();
 
@@ -173,14 +158,15 @@ private:
     EvaluationWindow *evalWinRPMBoost;
     EvaluationWindow *evalWinBoostLambdaSpectro;
     N75OptionsDialog *n75OptionsDialog;
-    QPointer<V2N75SetupDialog> v2N75SetupDialog;
-    QPointer<N75PidSettingsWidget> n75PidSettingsOnBoostTab;
-    QPointer<V2SettingsDialog> v2SettingsDialog;
-    QPointer<GearSettingsDialog> gearSettingsDialog;
-    QPointer<AboutDialog> aboutDialog;
+    V2N75SetupDialog *v2N75SetupDialog;
+    N75PidSettingsWidget *n75PidSettingsOnBoostTab;
+    V2SettingsDialog *v2SettingsDialog;
+    GearSettingsDialog *gearSettingsDialog;
+    AboutDialog *aboutDialog;
 
-    QPointer<MdBinaryProtocol> mds;
-    QPointer <MdAbstractCom> mdcom;
+    MdAbstractCom *mdcom;
+
+    MdBinaryProtocol *mds;
 
     MdData *data;
 
@@ -220,10 +206,6 @@ private:
     bool dashboardActualizeSave;
     bool vis1ActualizeSave;
     TransferFunction* dfBoostTransferFunction;
-    TransferFunction* wbLambdaTransferFunction;
-    QPointer<Map16x1> mapVdo1 = nullptr;
-    QPointer<Map16x1> mapVdo2 = nullptr;
-    QPointer<Map16x1> mapVdo3 = nullptr;
     DigifantApplicationWindow* dfAppWin;
 
     QString directory;

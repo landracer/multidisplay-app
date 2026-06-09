@@ -2,16 +2,11 @@
 #define ACCELEROMETER_H
 
 #include <QObject>
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QTime>
-#else
-#include <QElapsedTimer>
-#endif
 
 #include <QAccelerometer>
 
-#if defined Q_WS_MAEMO_5
+#if defined QT_MAEMO5_ENABLE
 QTM_USE_NAMESPACE
 #endif
 
@@ -36,11 +31,7 @@ public slots:
 
 private:
     QAccelerometer* sensor;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QTime freqMeasure;
-#else
-    QElapsedTimer freqMeasure;
-#endif
     //current readings
 };
 

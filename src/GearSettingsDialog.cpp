@@ -10,20 +10,8 @@ GearSettingsDialog::GearSettingsDialog(QWidget *parent) :
     ui(new Ui::GearSettingsDialog)
 {
     ui->setupUi(this);
-    connect (ui->comboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(loadDefaultTransmission(QString)));
-#ifdef Q_OS_ANDROID
-    //we want no ok / cancel button on android. data is saved on close by back button
-    //back button triggers 1. rejected and 2. finished
-    connect (this, SIGNAL(rejected()), this, SLOT(accept() ));
-    //connect (this, SIGNAL(finished(int)), this, SLOT(signalFinished(int) ));
+    connect (ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadDefaultTransmission(int)));
     connect (this, SIGNAL(accepted()), this, SLOT(myacceptedSlot()));
-    ui->buttonBox->hide();
-    //delete on close! AndroidMainWindows eventhandler will initiate the re-creation
-    //fixes broken dialog on 2. show
-    setAttribute( Qt::WA_DeleteOnClose, true );
-#else
-    connect (this, SIGNAL(accepted()), this, SLOT(myacceptedSlot()));
-#endif
 }
 
 GearSettingsDialog::~GearSettingsDialog()
@@ -59,10 +47,10 @@ void GearSettingsDialog::myacceptedSlot() {
                             99) );
 }
 
-void GearSettingsDialog::loadDefaultTransmission ( const QString & text ) {
+void GearSettingsDialog::loadDefaultTransmission ( int index ) {
     double gear_ratio[6];
 
-    if ( text == "02A ATB" ) {
+    if ( index == 0 ) {
         //Corrado 02A ATB
         gear_ratio[0] = 13.0341;
         gear_ratio[1] = 7.26225;

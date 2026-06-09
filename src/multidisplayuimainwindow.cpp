@@ -36,13 +36,10 @@ MultidisplayUIMainWindow::MultidisplayUIMainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 
-#if defined ( DIGIFANTAPP )
-    setWindowTitle("Digifant 1 ECU by digifant-onlineabstimmung.de");
-#endif
     statusBarRecordSizeLabel = new QLabel ("0");
     ui.StatusBar->addPermanentWidget(statusBarRecordSizeLabel);
 
@@ -53,7 +50,7 @@ MultidisplayUIMainWindow::MultidisplayUIMainWindow(QWidget *parent)
     dfMapActionGroup->addAction(ui.action300kpa);
     dfMapActionGroup->addAction(ui.action400kpa);
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
     //http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
     //http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
     ui.PlayButton->setIcon(  QIcon::fromTheme ("media-playback-start") );
@@ -64,9 +61,9 @@ MultidisplayUIMainWindow::MultidisplayUIMainWindow(QWidget *parent)
     ui.StopButton->setText("");
 #endif
 
-    //grabGesture(Qt::PanGesture);
-    //grabGesture(Qt::PinchGesture);
-    //grabGesture(Qt::SwipeGesture);
+    grabGesture(Qt::PanGesture);
+    grabGesture(Qt::PinchGesture);
+    grabGesture(Qt::SwipeGesture);
 
     connect (ui.action100kpa, SIGNAL(triggered(bool)), this, SLOT(dfMapSelected100(bool)));
     connect (ui.action200kpa, SIGNAL(triggered(bool)), this, SLOT(dfMapSelected200(bool)));
@@ -74,7 +71,7 @@ MultidisplayUIMainWindow::MultidisplayUIMainWindow(QWidget *parent)
     connect (ui.action300kpa, SIGNAL(triggered(bool)), this, SLOT(dfMapSelected300(bool)));
     connect (ui.action400kpa, SIGNAL(triggered(bool)), this, SLOT(dfMapSelected400(bool)));
 
-    overlay = nullptr;
+    overlay = NULL;
 //    overlay = new Overlay (this);
 
     //ui.DataTab->setStyleSheet ("background: url(/home/bofh/1280x720dfo_yt_landscape.png)");
@@ -87,7 +84,6 @@ MultidisplayUIMainWindow::~MultidisplayUIMainWindow() {
 
 void MultidisplayUIMainWindow::showStatusMessage (QString msg) {
     ui.StatusBar->showMessage(msg);
-    ui.LogTextEdit->appendPlainText(msg);
 }
 
 void MultidisplayUIMainWindow::showStatusBarSampleCount (QString msg) {
@@ -117,7 +113,7 @@ void MultidisplayUIMainWindow::newDfBoostTransferFunction (int name) {
         ui.action250kpa->setChecked(true);
         break;
     case 100 :
-        ui.action100kpa->setChecked(true);
+        ui.action200kpa->setChecked(true);
         break;
     case 300 :
         ui.action300kpa->setChecked(true);

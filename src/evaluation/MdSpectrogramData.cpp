@@ -25,6 +25,16 @@ MdSpectrogramData::MdSpectrogramData() : xlower(0), xupper(0), ylower(0), yupper
 
 }
 
+QwtInterval MdSpectrogramData::interval( Qt::Axis axis ) const
+{
+    if ( axis == Qt::XAxis )
+        return QwtInterval( xlower, xupper );
+    else if ( axis == Qt::YAxis )
+        return QwtInterval( ylower, yupper );
+    else
+        return QwtInterval( 0.0, 1.0 );
+}
+
 
 MdSpectrogramData::MdSpectrogramData( double xlower, double xupper, double ylower, double yupper, double step ) : xlower(xlower), xupper(xupper),
 	ylower(ylower), yupper(yupper), step(step), maxVal(1)
@@ -32,11 +42,9 @@ MdSpectrogramData::MdSpectrogramData( double xlower, double xupper, double ylowe
 	xcount = (xupper - xlower) / step;
 	ycount = (yupper - ylower) / step;
 
-	data = new QVector< QVector<double>* > ( xcount + 1, NULL );
+	data = new QVector< QVector<double>* > ( xcount + 1, nullptr );
 	for ( int i = 0 ; i < data->size() ; i++ )
-		(*data)[i] = new QVector<double> ( ycount + 1, NULL );
-
-    setInterval( Qt::ZAxis, QwtInterval( 0.0, 10.0 ) );
+		(*data)[i] = new QVector<double> ( ycount + 1, 0 );
 }
 
 MdSpectrogramData::~MdSpectrogramData() {
@@ -46,8 +54,7 @@ MdSpectrogramData::~MdSpectrogramData() {
 
 
 QwtRasterData * MdSpectrogramData::copy() const {
-//    return new MdSpectrogramData();
-    return NULL;
+    return new MdSpectrogramData( xlower, xupper, ylower, yupper, step );
 }
 
 QRectF MdSpectrogramData::boundingRect( ) const {
@@ -62,25 +69,15 @@ QRectF MdSpectrogramData::boundingRect( ) const {
 //	return QSize (xcount,ycount);
 //}
 
-QwtInterval MdSpectrogramData::interval( Qt::Axis axis ) const {
-    return d_intervals[axis];
-}
-
-void MdSpectrogramData::setInterval( Qt::Axis axis, const QwtInterval &interval )
-{
-    d_intervals[axis] = interval;
-}
-
-
 double MdSpectrogramData::value(double x, double y) const {
-    //qDebug() << "MdSpectrogram::value x=" << x << " y=" << y;
+	qDebug() << "MdSpectrogram::value x=" << x << " y=" << y;
 	if ( (x >= xlower) && (x <= xupper) && (y >= ylower) && (y <= yupper) ) {
 		uint xindex = (x - xlower) / step;
 		uint yindex = (y - ylower) / step;
 //		return ((*data)[xindex])->at(yindex);
 		double val = (*((*data)[xindex]))[yindex] ;
 		double val2 = mapValue(val);
-        //qDebug() << val2;
+		qDebug() << val2;
 		return val2;
 	}
 	return 0;

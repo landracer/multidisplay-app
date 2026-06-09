@@ -21,8 +21,8 @@
 #define MDSPECTOGRAMDATA_H_
 
 #include <qwt_raster_data.h>
+#include <QRectF>
 #include <qwt_interval.h>
-#include <qrect.h>
 
 class MdSpectrogramData : public QwtRasterData {
 public:
@@ -33,10 +33,8 @@ public:
     virtual QwtRasterData *copy() const;
 //    virtual QwtDoubleInterval range() const;
     virtual double value(double x, double y) const;
+    virtual QwtInterval interval(Qt::Axis axis) const;
 
-    //2021-10 qwt-6.2 fix
-    virtual QwtInterval interval( Qt::Axis ) const;
-    void setInterval( Qt::Axis axis, const QwtInterval &interval );
 
     double mapValue ( const double &val ) const;
     virtual void increment ( const double &x, const double &y );
@@ -45,8 +43,6 @@ public:
 
     QRectF boundingRect ( ) const;
 //    QSize rasterHint ( const QwtDoubleRect &rect ) const;
-
-    double getMaxVal() { return maxVal; };
 
 private:
 
@@ -64,8 +60,6 @@ private:
 	unsigned int xcount;
 	unsigned int ycount;
 
-    //2021-10 qwt-6.2 fix
-    QwtInterval d_intervals[3];
 };
 
 #endif /* MDSPECTOGRAMDATA_H_ */

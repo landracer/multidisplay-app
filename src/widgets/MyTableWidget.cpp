@@ -96,9 +96,9 @@ N75TableWidget::N75TableWidget(quint8 mode, QWidget *parent) :
     MyTableWidget(parent), mode(mode)
 {
     if (mode==0) {
-        setToolTip(tr("low boost"));
+        setToolTip("low boost");
     } else {
-        setToolTip(tr("high boost"));
+        setToolTip("high boost");
     }
 
     dutyOb = new ColorOverBlend(Qt::cyan, Qt::yellow, Qt::red, 0, 128, 255);
@@ -107,7 +107,7 @@ N75TableWidget::N75TableWidget(quint8 mode, QWidget *parent) :
     setRowCount(12);
     QStringList rl;
 
-#if defined (Q_WS_MAEMO_5) || defined(ANDROID)
+#if defined (QT_MAEMO5_ENABLE) || defined(ANDROID)
     rl.append("1. dc");
     rl.append("1. bst");
     rl.append("2. dc");

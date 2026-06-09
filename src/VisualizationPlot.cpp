@@ -27,6 +27,7 @@
 #include <qwt_plot_marker.h>
 
 
+
 VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableView *tableView )
     : MdPlot(mw, parent, tableView) {
 
@@ -54,10 +55,6 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     gearData = new MdPlotData (0, 100);
     n75Data = new MdPlotData (0, 100);
 
-    dfRetardData = new MdPlotData (0, 100);
-    dfKnockData = new MdPlotData (0, 100);
-    dfIgnData = new MdPlotData (0, 100);
-
     //	setTitle (QString("Boost / RPM / Lambda / Throttle / EGT"));
 
     //#ifdef Q_WS_MAEMO_5
@@ -66,101 +63,89 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     //        setTitle(t);
     //#endif
 
-    boostCurve = new QwtPlotCurve (tr("boost"));
+    boostCurve = new QwtPlotCurve ("boost");
     boostCurve->attach(this);
 
-    rpmCurve = new QwtPlotCurve (tr("RPM"));
+    rpmCurve = new QwtPlotCurve ("RPM");
     rpmCurve->attach(this);
     rpmCurve->setYAxis(QwtPlot::yRight);
 
-    lambdaCurve = new QwtPlotCurve (tr("Lambda"));
+    lambdaCurve = new QwtPlotCurve ("Lambda");
     lambdaCurve->attach(this);
 
-    throttleCurve = new QwtPlotCurve (tr("Throttle"));
+    throttleCurve = new QwtPlotCurve ("Throttle");
     throttleCurve->attach(this);
 
-    egt0Curve = new QwtPlotCurve (tr("EGT 0"));
+    egt0Curve = new QwtPlotCurve ("EGT 0");
     egt0Curve->attach(this);
     egt0Curve->setYAxis(QwtPlot::yRight);
 
-    egt1Curve = new QwtPlotCurve (tr("EGT 1"));
+    egt1Curve = new QwtPlotCurve ("EGT 1");
     egt1Curve->attach(this);
     egt1Curve->setYAxis(QwtPlot::yRight);
 
-    egt2Curve = new QwtPlotCurve (tr("EGT 2"));
+    egt2Curve = new QwtPlotCurve ("EGT 2");
     egt2Curve->attach(this);
     egt2Curve->setYAxis(QwtPlot::yRight);
 
-    egt3Curve = new QwtPlotCurve (tr("EGT 3"));
+    egt3Curve = new QwtPlotCurve ("EGT 3");
     egt3Curve->attach(this);
     egt3Curve->setYAxis(QwtPlot::yRight);
 
-    egt4Curve = new QwtPlotCurve (tr("EGT 4"));
+    egt4Curve = new QwtPlotCurve ("EGT 4");
     egt4Curve->attach(this);
     egt4Curve->setYAxis(QwtPlot::yRight);
 
-    egt5Curve = new QwtPlotCurve (tr("EGT 5"));
+    egt5Curve = new QwtPlotCurve ("EGT 5");
     egt5Curve->attach(this);
     egt5Curve->setYAxis(QwtPlot::yRight);
 
-    VDOTemp1Curve = new QwtPlotCurve (tr("VDO Temp1"));
+    VDOTemp1Curve = new QwtPlotCurve ("VDO Temp1");
     VDOTemp1Curve->attach(this);
     VDOTemp1Curve->setYAxis(QwtPlot::yRight);
     VDOTemp1Curve->setVisible(false);
 
-    VDOTemp2Curve = new QwtPlotCurve (tr("VDO Temp2"));
+    VDOTemp2Curve = new QwtPlotCurve ("VDO Temp2");
     VDOTemp2Curve->attach(this);
     VDOTemp2Curve->setYAxis(QwtPlot::yRight);
     VDOTemp2Curve->setVisible(false);
 
-    VDOTemp3Curve = new QwtPlotCurve (tr("VDO Temp3"));
+    VDOTemp3Curve = new QwtPlotCurve ("VDO Temp3");
     VDOTemp3Curve->attach(this);
     VDOTemp3Curve->setYAxis(QwtPlot::yRight);
     VDOTemp3Curve->setVisible(false);
 
-    VDOPres1Curve = new QwtPlotCurve (tr("VDO Pres 1"));
+    VDOPres1Curve = new QwtPlotCurve ("VDO Pres 1");
     VDOPres1Curve->attach(this);
     VDOPres1Curve->setYAxis(QwtPlot::yRight);
     VDOPres1Curve->setVisible(false);
 
-    VDOPres2Curve = new QwtPlotCurve (tr("VDO Pres 2"));
+    VDOPres2Curve = new QwtPlotCurve ("VDO Pres 2");
     VDOPres2Curve->attach(this);
     VDOPres2Curve->setYAxis(QwtPlot::yRight);
     VDOPres2Curve->setVisible(false);
 
 
-    VDOPres3Curve = new QwtPlotCurve (tr("VDO Pres 3"));
+    VDOPres3Curve = new QwtPlotCurve ("VDO Pres 3");
     VDOPres3Curve->attach(this);
     VDOPres3Curve->setYAxis(QwtPlot::yRight);
     VDOPres3Curve->setVisible(false);
 
-    lmmCurve = new QwtPlotCurve (tr("MAF"));
+    lmmCurve = new QwtPlotCurve ("LMM");
     lmmCurve->attach(this);
     lmmCurve->setYAxis(QwtPlot::yRight);
 
-    speedCurve = new QwtPlotCurve (tr("Speed"));
+    speedCurve = new QwtPlotCurve ("Speed");
     speedCurve->attach(this);
     speedCurve->setYAxis(QwtPlot::yRight);
 
-    gearCurve = new QwtPlotCurve (tr("Gear"));
+    gearCurve = new QwtPlotCurve ("Gear");
     gearCurve->attach(this);
     gearCurve->setYAxis(QwtPlot::yLeft);
 
-    n75Curve = new QwtPlotCurve (tr("N75"));
+    n75Curve = new QwtPlotCurve ("N75");
     n75Curve->attach(this);
     n75Curve->setYAxis(QwtPlot::yLeft);
-
-    dfRetardCurve = new QwtPlotCurve (tr("Ignition Retard"));
-    dfRetardCurve->attach(this);
-    dfRetardCurve->setYAxis(QwtPlot::yLeft);
-
-    dfKnockCurve = new QwtPlotCurve (tr("Knock"));
-    dfKnockCurve->attach(this);
-    dfKnockCurve->setYAxis(QwtPlot::yLeft);
-
-    dfIgnCurve = new QwtPlotCurve (tr("Ignition"));
-    dfIgnCurve->attach(this);
-    dfIgnCurve->setYAxis(QwtPlot::yLeft);
 
     boostCurve->setPen(QPen(Qt::red));
     rpmCurve->setPen(QPen(Qt::yellow));
@@ -182,9 +167,6 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     speedCurve->setPen(QPen(Qt::darkYellow));
     gearCurve->setPen(QPen(Qt::gray));
     n75Curve->setPen(QPen(Qt::darkGray));
-    dfRetardCurve->setPen(QPen(Qt::darkRed));
-    dfKnockCurve->setPen(QPen(Qt::darkGreen));
-    dfIgnCurve->setPen(QPen(QColor(0xff,0x7a,0)));
 
     curveMap["boost"] = boostCurve;
     curveMap["rpm"] = rpmCurve;
@@ -206,18 +188,15 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     curveMap["Speed"] = speedCurve;
     curveMap["gear"] = gearCurve;
     curveMap["N75"] = n75Curve;
-    curveMap["Ignition Retard"] = dfRetardCurve;
-    curveMap["Knock"] = dfKnockCurve;
-    curveMap["Ignition"] = dfIgnCurve;
 
     boostCurve->setStyle( QwtPlotCurve::Lines );
 
     // Axis
-    setAxisTitle(QwtPlot::xBottom, tr("Time / minutes"));
+    setAxisTitle(QwtPlot::xBottom, "Time / minutes");
     setAxisScale(QwtPlot::xBottom, 0, 100000);
-    setAxisTitle(QwtPlot::yLeft, tr("Boost / Throttle / Lambda"));
+    setAxisTitle(QwtPlot::yLeft, "Boost / Throttle / Lambda");
     setAxisScale(QwtPlot::yLeft, -1.0, 12.0);
-    setAxisTitle(QwtPlot::yRight, tr("RPM"));
+    setAxisTitle(QwtPlot::yRight, "RPM");
     setAxisScale(QwtPlot::yRight, 0, 7500);
     enableAxis(QwtPlot::yRight, true);
     setAxisAutoScale(QwtPlot::xBottom);
@@ -248,11 +227,8 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     speedCurve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (speedData) );
     gearCurve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (gearData) );
     n75Curve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (n75Data) );
-    dfRetardCurve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (dfRetardData) );
-    dfKnockCurve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (dfKnockData) );
-    dfIgnCurve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (dfIgnData) );
 
-#ifndef Q_WS_MAEMO_5
+#ifndef QT_MAEMO5_ENABLE
     QwtLegend *legend = new QwtLegend();
     legend->setDefaultItemMode( QwtLegendData::Clickable );
     //    legend->setItemMode(QwtLegend::CheckableItem);
@@ -262,7 +238,6 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     connect(legend, SIGNAL(checked(QVariant,bool,int)), this, SLOT(showCurve(QVariant,bool,int)) );
     connect(legend, SIGNAL(clicked(QVariant,int)), this, SLOT(showCurve(QVariant,int)) );
 #endif
-
 }
 
 VisualizationPlot::~VisualizationPlot() {
@@ -302,12 +277,6 @@ void VisualizationPlot::addRecord(MdSensorRecord *r, bool doReplot) {
         //255 is 10 on left axis
         n75Data->append ( r->getTime()/60000.0, r->getN75() * 0.04 );
 
-        //48 is 12 on left axis
-        dfRetardData->append ( r->getTime()/60000.0, r->df_ignition_total_retard / 4 );
-        //255 is 10 on left axis
-        dfKnockData->append ( r->getTime()/60000.0, r->df_knock_raw * 0.04 );
-        //72 is 12 on left axis
-        dfIgnData->append ( r->getTime()/60000.0, r->df_ignition / 6 );
         if ( doReplot && this->isVisible() ) {
             //              updateAxes();
             replot();
@@ -318,7 +287,7 @@ void VisualizationPlot::addRecord(MdSensorRecord *r, bool doReplot) {
 
 void VisualizationPlot::pointSelected(const QPointF &pos) {
     quint32 millis = pos.x() * 60000;
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     if ( tableView ) {
         MdData* md = dynamic_cast<MdData*> (tableView->model());
         if ( md ) {
@@ -355,7 +324,7 @@ void VisualizationPlot::removeLastMarker () {
         m->detach();
         delete (m);
         replot();
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
         if ( tableView ) {
             MdData* md = dynamic_cast<MdData*> (tableView->model());
             if ( md ) {
@@ -377,15 +346,10 @@ void VisualizationPlot::clear () {
     egt1Data->clear();
     egt2Data->clear();
     egt3Data->clear();
-    egt4Data->clear();
-    egt5Data->clear();
     lmmData->clear();
     speedData->clear();
     gearData->clear();
     n75Data->clear();
-    dfRetardData->clear();
-    dfKnockData->clear();
-    dfIgnData->clear();
     foreach (QwtPlotMarker* m, markerList) {
         m->detach();
         delete (m);

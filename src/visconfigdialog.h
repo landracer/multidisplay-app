@@ -25,7 +25,11 @@
 
 #include <QMap>
 #include <QString>
+#include <QPen>
+#include <QBrush>
+#include <QTableWidgetItem>
 #include <qwt_plot_curve.h>
+#include <qwt_text.h>
 #include "ui_visconfigdialog.h"
 
 class VisConfigDialog : public QDialog

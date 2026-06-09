@@ -29,61 +29,9 @@ Map16x1::~Map16x1() {
 }
 
 double Map16x1::mapValue ( int dval ) {
-    return mapValue8Bit ( dval );
-}
-
-double Map16x1::mapValue8Bit ( int dval ) {
-    if ( dval > 255 )
-        dval = 255;
     int idx = dval >> 4;
     int w = dval & 0xF;
     return idx < 0xF ? (( ( w * mapData[idx+1] ) + ( -1 * (w-16) * mapData[idx]) ) / 16) : mapData[idx];
-}
-double Map16x1::mapValue10Bit ( int dval ) {
-    if ( dval > 1023 )
-        dval = 1023;
-    int idx = dval >> 6;
-    int w = dval - 64*idx;
-    return idx < 0xF ? (( ( w * mapData[idx+1] ) + ( -1 * (w-64) * mapData[idx]) ) / 64) : mapData[idx];
-}
-double Map16x1::mapValue12Bit ( int dval ) {
-    if ( dval > 4095 )
-        dval = 4095;
-    int idx = dval >> 8;
-    int w = dval - 256*idx;
-    return idx < 0xF ? (( ( w * mapData[idx+1] ) + ( -1 * (w-256) * mapData[idx]) ) / 256) : mapData[idx];
-}
-
-quint8 Map16x1::reverse(double realValue) {
-    bool desc = true;
-    if ( mapData.at(1) > mapData.at(0) )
-        desc = false;
-    int loIdx = 0;
-    int hiIdx = 0;
-    double w = 0;
-    if ( desc ) {
-        for ( int i=0 ; i < mapData.size()-1 ; i++ ) {
-            if ( mapData.at(i) >= realValue )
-                hiIdx = i;
-            if ( mapData.at(i) < realValue ) {
-                loIdx = i;
-                break;
-            }
-        }
-    } else {
-        //asc
-        for ( int i=0 ; i < mapData.size()-1 ; i++ ) {
-            if ( mapData.at(i) <= realValue )
-                loIdx = i;
-            if ( mapData.at(i) > realValue ) {
-                hiIdx = i;
-                break;
-            }
-        }
-    }
-    double f = abs ( ( mapData.at(hiIdx) - realValue ) / (mapData.at(hiIdx) - mapData.at(loIdx)) );
-    //130-115 / 130 - 90
-    return hiIdx * 16 + f * 16;
 }
 
 void Map16x1::testIt () {
@@ -153,11 +101,9 @@ void Map16x1_NTC_ECT::testIt () {
     v.append(5);
     v.append(3);
     v.append(2);
-    v.append(0x18);
-    v.append(0x2C);
 
     foreach ( int i,  v ) {
-        qDebug() << "ECT::testIt df ad=" << i << " mapped value=" << mapValue(i) << " reversed=" << reverse(mapValue(i)) << Qt::endl;
+        qDebug() << "df val=" << i << " mapped value=" << mapValue(i) << Qt::endl;
     }
 }
 
@@ -229,7 +175,7 @@ void Map16x1_NTC_IAT::testIt () {
     v.append(2);
 
     foreach ( int i,  v ) {
-        qDebug() << "ECT::testIt df ad=" << i << " mapped value=" << mapValue(i) << " reversed=" << reverse(mapValue(i)) << Qt::endl;
+        qDebug() << "df val=" << i << " mapped value=" << mapValue(i) << Qt::endl;
     }
 }
 
@@ -258,81 +204,23 @@ Map16x1_ISV::Map16x1_ISV() {
 
 Map16x1_Voltage::Map16x1_Voltage() {
     mapData.resize(17);
-    mapData[0]=0.00;
-    mapData[1]=1.49;
-    mapData[2]=2.98;
-    mapData[3]=4.48;
-    mapData[4]=5.97;
-    mapData[5]=7.46;
-    mapData[6]=8.95;
-    mapData[7]=10.44;
-    mapData[8]=11.93;
-    mapData[9]=13.43;
-    mapData[10]=14.92;
-    mapData[11]=16.41;
-    mapData[12]=17.90;
-    mapData[13]=19.39;
-    mapData[14]=20.89;
-    mapData[15]=22.38;
-    mapData[16]=23.78;
-}
-double Map16x1_Voltage::mapValue(int dval)
-{
-    return dval * 1127/12087.0;
-}
-
-quint8 Map16x1_Voltage::reverse(double realValue)
-{
-    return ( realValue * 12087.0 ) / 1127;
-}
-
-
-Map16x1_NbLambda::Map16x1_NbLambda() {
-    //https://bimmerprofs.com/wp-content/uploads/2017/07/o2sensor_output_afetr_CO_converter.png
-    //map 0-1V to 0-255
-    mapData.resize(17);
-    mapData[0]=1.2;
-    mapData[1]=1.1;
-    mapData[2]=1.01;
-    mapData[3]=1.0012;
-    mapData[4]=1.0009;
-    mapData[5]=1.0006;
-    mapData[6]=1.0003;
-    mapData[7]=1;
-    mapData[8]=1;
-    mapData[9]=0.9997;
-    mapData[10]=0.9994;
-    mapData[11]=0.9991;
-    mapData[12]=0.995;
-    mapData[13]=0.99;
-    mapData[14]=0.9;
-    mapData[15]=0.8;
-    mapData[16]=0.69;
-}
-double Map16x1_NbLambda::mapValue ( int dval ) {
-    int m255 = qRound (dval / 3.9216);
-    return Map16x1::mapValue( m255 );
-}
-
-Map16x1_CO::Map16x1_CO() {
-    mapData.resize(17);
     mapData[0]=0;
-    mapData[1]=67;
-    mapData[2]=143;
-    mapData[3]=232;
-    mapData[4]=335;
-    mapData[5]=457;
-    mapData[6]=491;
-    mapData[7]=604;
-    mapData[8]=783;
-    mapData[9]=1008;
-    mapData[10]=1297;
-    mapData[11]=1684;
-    mapData[12]=2000;
-    mapData[13]=2000;
-    mapData[14]=2000;
-    mapData[15]=2000;
-    mapData[16]=2000;
+    mapData[1]=1.6;
+    mapData[2]=3.2;
+    mapData[3]=4.8;
+    mapData[4]=6.4;
+    mapData[5]=8;
+    mapData[6]=9.6;
+    mapData[7]=11.2;
+    mapData[8]=12.8;
+    mapData[9]=14.3;
+    mapData[10]=15.9;
+    mapData[11]=17.5;
+    mapData[12]=19.1;
+    mapData[13]=20.7;
+    mapData[14]=22.3;
+    mapData[15]=23.9;
+    mapData[16]=25.5;
 }
 
 
@@ -376,84 +264,4 @@ Map16x1_RPM7350::Map16x1_RPM7350() {
     mapData[14]=1000;
     mapData[15]=700;
     mapData[16]=500;
-}
-
-
-Map16x1_10Bit_VDO5::Map16x1_10Bit_VDO5() {
-    mapData.resize(17);
-    mapData[0]=0;
-    mapData[1]=110;
-    mapData[2]=573;
-    mapData[3]=1113;
-    mapData[4]=1751;
-    mapData[5]=2515;
-    mapData[6]=2958;
-    mapData[7]=3999;
-    mapData[8]=5319;
-    mapData[9]=5319;
-    mapData[10]=5319;
-    mapData[11]=5319;
-    mapData[12]=5319;
-    mapData[13]=5319;
-    mapData[14]=5319;
-    mapData[15]=5319;
-    mapData[16]=5319;
-}
-double Map16x1_10Bit_VDO5::mapValue ( int dval ) {
-    return mapValue10Bit( dval );
-}
-void Map16x1_10Bit_VDO5::testIt () {
-    QList<int> v;
-    v.append(0);
-    v.append(64);
-    v.append(96);
-    v.append(749);
-    v.append(888);
-    v.append(928);
-    v.append(960);
-    v.append(1024);
-
-    foreach ( int i,  v ) {
-        qDebug() << "ad value=" << i << " mapped value=" << mapValue(i) << Qt::endl;
-    }
-}
-
-
-Map16x1_10Bit_VDO10::Map16x1_10Bit_VDO10() {
-    mapData.resize(17);
-    mapData[0]=0;
-    mapData[1]=207;
-    mapData[2]=1006;
-    mapData[3]=1962;
-    mapData[4]=3126;
-    mapData[5]=4583;
-    mapData[6]=6474;
-    mapData[7]=9067;
-    mapData[8]=10796;
-    mapData[9]=10796;
-    mapData[10]=10796;
-    mapData[11]=10796;
-    mapData[12]=10796;
-    mapData[13]=10796;
-    mapData[14]=10796;
-    mapData[15]=10796;
-    mapData[16]=10796;
-}
-double Map16x1_10Bit_VDO10::mapValue ( int dval ) {
-    return mapValue10Bit( dval );
-}
-void Map16x1_10Bit_VDO10::testIt () {
-    QList<int> v;
-    v.append(0);
-    v.append(64);
-    v.append(96);
-    v.append(448);
-    v.append(480);
-    v.append(512);
-    v.append(749);
-    v.append(888);
-
-    foreach ( int i,  v ) {
-        qDebug() << "ad value=" << i << " mapped value=" << mapValue(i) << Qt::endl;
-    }
 }

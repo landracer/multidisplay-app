@@ -75,9 +75,6 @@ private:
     QwtPlotCurve *speedCurve;
     QwtPlotCurve *gearCurve;
     QwtPlotCurve *n75Curve;
-    QwtPlotCurve *dfRetardCurve;
-    QwtPlotCurve *dfKnockCurve;
-    QwtPlotCurve *dfIgnCurve;
 
 	MdPlotData *boostData;
 	MdPlotData *rpmData;
@@ -101,9 +98,6 @@ private:
     MdPlotData *speedData;
     MdPlotData *gearData;
     MdPlotData *n75Data;
-    MdPlotData *dfRetardData;
-    MdPlotData *dfKnockData;
-    MdPlotData *dfIgnData;
 
 	QList<QwtPlotMarker*> markerList;
     QList<int> markerMillisecsList;

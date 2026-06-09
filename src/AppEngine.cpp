@@ -26,6 +26,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QApplication>
+#include <QScreen>
 #include <QTableWidget>
 #include <QDesktopServices>
 #include <QDir>
@@ -63,13 +64,9 @@
 #include "widgets/MyTableWidget.h"
 #include "widgets/N75PidSettingsWidget.h"
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) && not defined(Q_OS_ANDROID)
     #include "com/MdQSerialPortCom.h"
 #endif
-
-#include "com/MdBluetoothCom.h"
-#include "com/MdBluetoothLECom.h"
-#include "com/MdBluetoothWrapper.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     #include "com/MdQextSerialCom.h"
@@ -77,23 +74,10 @@
 
 #if defined (Q_OS_ANDROID)
     #include "com/MdBluetoothCom.h"
-    #include "com/MdBluetoothLECom.h"
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     #include <QtAndroid>
-#else
-    #include <QtCore/private/qandroidextras_p.h>
-#endif
 #endif
 
-#if defined (Q_OS_IOS)
-    #include "com/MdBluetoothCom.h"
-    #include "com/MdBluetoothLECom.h"
-    #include "mobile/MobileGPS.h"
-    #include "mobile/Accelerometer.h"
-    #include "mobile/IosHelper.h"
-#endif
-
-#if defined (Q_WS_MAEMO_5) || defined(ANDROID)
+#if defined (QT_MAEMO5_ENABLE) || defined(ANDROID)
 #include "mobile/MobileGPS.h"
 #include "mobile/Accelerometer.h"
 #include "mobile/AndroidN75Dialog.h"
@@ -106,16 +90,14 @@ AppEngine* AppEngine::getInstance() {
 
 AppEngine::AppEngine() {
 
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID) && !defined (Q_OS_IOS)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     qDebug() << "desktop version";
     pcmw = new MultidisplayUIMainWindow ();
-    mmw = nullptr;
-    mbw = nullptr;
-    mvis1w = nullptr;
-    mcw = nullptr;
-    amw = nullptr;
-
-    wbLambdaTransferFunction = nullptr;
+    mmw = NULL;
+    mbw = NULL;
+    mvis1w = NULL;
+    mcw = NULL;
+    amw = NULL;
 
     DataViewSlider = pcmw->ui.DataViewSlider;
     DataViewSpinBox = pcmw->ui.DataViewWinSizeSpinBox;
@@ -124,8 +106,6 @@ AppEngine::AppEngine() {
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     mdcom = new MdQSerialPortCom(this);
-    //mdcom = new MdBluetoothLECom(this);
-    //mdcom = new MdBluetoothWrapper(this);
 #else
     mdcom = new MdQextSerialCom(this);
 #endif
@@ -135,7 +115,7 @@ AppEngine::AppEngine() {
 
     evalWinBoostLambda = new EvaluationWindow (NULL, data, EvaluationWindow::BoostLambda );
     evalWinRPMBoost = new EvaluationWindow (NULL, data, EvaluationWindow::RPMBoost );
-    evalWinBoostLambdaSpectro = new EvaluationWindow (NULL, data, EvaluationWindow::SpectroBoostLambda );
+    //	evalWinBoostLambdaSpectro = new EvaluationWindow (NULL, data, EvaluationWindow::SpectroBoostLambda );
     n75OptionsDialog = new N75OptionsDialog(pcmw);
     v2N75SetupDialog = new V2N75SetupDialog(pcmw);
     v2SettingsDialog = new V2SettingsDialog(pcmw);
@@ -148,7 +128,7 @@ AppEngine::AppEngine() {
     actualizeVis1 = true;
     actualizeDashboard = true;
 
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     //http://doc.trolltech.com/qt-maemo-4.6/platform-notes-maemo5.html
 
     qDebug() << "QT_WS_MAEMO_5 mobile version";
@@ -199,98 +179,6 @@ AppEngine::AppEngine() {
 
 #if defined (Q_OS_ANDROID)
     qDebug() << "ANDROID mobile version";
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    auto  result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.READ_EXTERNAL_STORAGE"}));
-        if(resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "READ_EXTERNAL_STORAGE permission denied!";
-    }
-    result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
-        if(resultHash["android.permission.WRITE_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "WRITE_EXTERNAL_STORAGE permission denied!";
-    }
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
-        if(resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH permission denied!";
-    }
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
-        if(resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_ADMIN permission denied!";
-    }
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_SCAN"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_SCAN"}));
-        if(resultHash["android.permission.BLUETOOTH_SCAN"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_SCAN permission denied!";
-    }
-    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_CONNECT"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
-        if(resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "BLUETOOTH_CONNECT permission denied!";
-    }
-    result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-        if(resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "ACCESS_FINE_LOCATION permission denied!";
-    }
-#else
-   //Qt 6
-   //https://forum.qt.io/topic/140111/qt-6-4-and-permissions/4
-    QString permission = QString("android.permission.READ_EXTERNAL_STORAGE");
-    if ( ! AndroidMainWindow::checkAndroidPermission(permission) ) {
-        if ( ! AndroidMainWindow::requestAndroidPermission(permission) )
-            qDebug() << permission << " permission denied!";
-    }
-
-    permission = QString("android.permission.WRITE_EXTERNAL_STORAGE");
-    if ( ! AndroidMainWindow::checkAndroidPermission(permission) ) {
-        if ( ! AndroidMainWindow::requestAndroidPermission(permission) )
-            qDebug() << permission << " permission denied!";
-    }
-
-    permission = QString("android.permission.BLUETOOTH");
-    if ( ! AndroidMainWindow::checkAndroidPermission(permission) ) {
-        if ( ! AndroidMainWindow::requestAndroidPermission(permission) )
-            qDebug() << permission << " permission denied!";
-    }
-
-    permission = QString("android.permission.BLUETOOTH_ADMIN");
-    if ( ! AndroidMainWindow::checkAndroidPermission(permission) ) {
-        if ( ! AndroidMainWindow::requestAndroidPermission(permission) )
-            qDebug() << permission << " permission denied!";
-    }
-
-    permission = QString("android.permission.BLUETOOTH_SCAN");
-    if ( ! AndroidMainWindow::checkAndroidPermission(permission) ) {
-        if ( ! AndroidMainWindow::requestAndroidPermission(permission) )
-            qDebug() << permission << " permission denied!";
-    }
-
-    permission = QString("android.permission.BLUETOOTH_CONNECT");
-    if ( ! AndroidMainWindow::checkAndroidPermission(permission) ) {
-        if ( ! AndroidMainWindow::requestAndroidPermission(permission) )
-            qDebug() << permission << " permission denied!";
-    }
-
-
-    permission = QString("android.permission.ACCESS_FINE_LOCATION");
-    if ( ! AndroidMainWindow::checkAndroidPermission(permission) ) {
-        if ( ! AndroidMainWindow::requestAndroidPermission(permission) )
-            qDebug() << permission << " permission denied!";
-    }
-#endif
-
-
     amw = new AndroidMainWindow ();
 
     pcmw = NULL;
@@ -301,8 +189,7 @@ AppEngine::AppEngine() {
 
     data = new MdData(mbw, mbw->ui->BoostGraphGroupBox, mvis1w, mvis1w->ui->Vis1PlotBox );
 
-    //mdcom = new MdBluetoothCom(this);
-    mdcom = new MdBluetoothWrapper(this);
+    mdcom = new MdBluetoothCom(this);
     mds = new MdBinaryProtocol(this, data, mdcom);
 
     mySerialOptionsDialog = new SerialOptionsDialog ();
@@ -324,42 +211,6 @@ AppEngine::AppEngine() {
     actualizeDashboard = false;
 #endif
 
-#if defined (Q_OS_IOS)
-    amw = new AndroidMainWindow ();
-
-    pcmw = NULL;
-    mmw = NULL;
-    //FIXME
-    mbw = new MobileBoostPidWindow (amw);
-    mvis1w = new MobileVis1MainWindow (mbw);
-
-    data = new MdData(mbw, mbw->ui->BoostGraphGroupBox, mvis1w, mvis1w->ui->Vis1PlotBox );
-
-    //mdcom = new MdBluetoothCom(this);
-    mdcom = new MdBluetoothLECom(this);
-    //mdcom = new MdBluetoothWrapper(this);
-    mds = new MdBinaryProtocol(this, data, mdcom);
-
-    mySerialOptionsDialog = new SerialOptionsDialog ();
-    //mySerialOptionsDialog->setGeometry( QRect(0,0,700,350) );
-    mcw = new MobileCommandWindow(amw);
-    aboutDialog = new AboutDialog(amw);
-
-    evalWinBoostLambda = new EvaluationWindow (amw, data, EvaluationWindow::BoostLambda );
-    Q_ASSERT(evalWinBoostLambda != NULL);
-    evalWinRPMBoost = new EvaluationWindow (amw, data, EvaluationWindow::RPMBoost );
-    Q_ASSERT(evalWinRPMBoost != NULL);
-    //	evalWinBoostLambdaSpectro = new EvaluationWindow (NULL, data, EvaluationWindow::SpectroBoostLambda );
-
-    v2N75SetupDialog = new V2N75SetupDialog(amw);
-    v2SettingsDialog = new V2SettingsDialog(amw);
-    gearSettingsDialog = new GearSettingsDialog(amw);
-
-    actualizeVis1 = false;
-    actualizeDashboard = false;
-
-    //TODO do we have to request rights on IOS???
-#endif
 
     //Replay
     replaySpeedUpFactor = 1;
@@ -368,13 +219,13 @@ AppEngine::AppEngine() {
 
     connect (replay, SIGNAL(clearPlots()), data, SLOT(clearPlots()) );
 
-#if  !defined (Q_WS_MAEMO_5)  && !defined (Q_OS_ANDROID)  && !defined (Q_OS_IOS)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (Q_OS_ANDROID)
     connect (replay, SIGNAL(showStatusMessage(QString)), pcmw, SLOT(showStatusMessage(QString)), Qt::QueuedConnection );
 #endif
     connect (replay, SIGNAL(visualizeDataRecord(MdDataRecord*,bool)), data, SLOT(visualizeDataRecord(MdDataRecord*,bool)), Qt::QueuedConnection );
 
 
-#if  defined (Q_WS_MAEMO_5)  || defined (Q_OS_ANDROID) || defined (Q_OS_IOS)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (Q_OS_ANDROID)
     setupMobile();
 #else
     setupPC();
@@ -385,16 +236,6 @@ AppEngine::AppEngine() {
     directory = QStandardPaths::standardLocations (QStandardPaths::DocumentsLocation)[0];
 #else
     directory = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation);
-#endif
-#if defined Q_OS_ANDROID
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    //QAndroidJniObject s = QAndroidJniObject::callStaticObjectMethod( "de/gummelinformatics/digifant/MuiIntentHelper", "getPublicDocumentPath", "()Ljava/lang/String;" );
-    QAndroidJniObject s = QAndroidJniObject::callStaticObjectMethod( "de/gummelinformatics/digifant/MuiIntentHelper", "getPublicDownloadsPath", "()Ljava/lang/String;" );
-#else
-    QJniObject s = QJniObject::callStaticObjectMethod( "de/gummelinformatics/digifant/MuiIntentHelper", "getPublicDownloadsPath", "()Ljava/lang/String;" );
-#endif
-    directory = s.toString();
-    qDebug() << "android path 2020: " << directory;
 #endif
 
     //load TEST-DATA
@@ -437,7 +278,7 @@ void AppEngine::setupPC() {
 
     connect (pcmw->ui.actionShow_Boost_Lambda, SIGNAL(triggered()), evalWinBoostLambda, SLOT(show()) );
     connect (pcmw->ui.actionShow_RPM_Boost, SIGNAL(triggered()), evalWinRPMBoost, SLOT(show()) );
-    connect (pcmw->ui.actionShow_Boost_Lambda_Spectrogram, SIGNAL(triggered()), evalWinBoostLambdaSpectro, SLOT(show()) );
+    //	connect (pcmw->ui.actionShow_Boost_Lambda_Spectrogram, SIGNAL(triggered()), evalWinBoostLambdaSpectro, SLOT(show()) );
 
     connect (pcmw->ui.actionAbout, SIGNAL(triggered()), aboutDialog, SLOT(show()));
 
@@ -455,8 +296,6 @@ void AppEngine::setupPC() {
     connect (pcmw->ui.StopButton, SIGNAL(clicked()), replay, SLOT(stop()) );
     connect (pcmw->ui.ReplayFactorSpinBox, SIGNAL(valueChanged(double)), this, SLOT(setReplaySpeedUpFactor(double)));
 
-    connect (mdcom, SIGNAL(showStatusMessage(QString)), pcmw, SLOT(showStatusMessage(QString)) );
-    connect (mds, SIGNAL(showStatusMessage(QString)), pcmw, SLOT(showStatusMessage(QString)) );
     connect (data, SIGNAL(showStatusMessage(QString)), pcmw, SLOT(showStatusMessage(QString)));
     connect (mds, SIGNAL(showStatusMessage(QString)), pcmw, SLOT(showStatusMessage(QString)));
     connect (mds, SIGNAL(showStatusBarSampleCount(QString)), pcmw, SLOT(showStatusBarSampleCount(QString)));
@@ -517,7 +356,6 @@ void AppEngine::setupPC() {
     //Dashboard
     rtvis = new RealTimeVis ( dynamic_cast<QWidget*>(pcmw->ui.DashboardTab) );
     connect (data, SIGNAL(rtNewDataRecord(MdDataRecord*)), rtvis, SLOT(visualize(MdDataRecord*)));
-    connect (data, SIGNAL(showStatusMessage(QString)), rtvis, SLOT(showStatusMessage(QString)) );
 
     //Digifant-1 stuff
     connect (this, SIGNAL(newDfBoostTransferFunction(int)), pcmw, SLOT(newDfBoostTransferFunction(int)));
@@ -539,14 +377,11 @@ void AppEngine::setupPC() {
 }
 
 void AppEngine::setupMobile() {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     setupMaemo();
 #endif
 #ifdef Q_OS_ANDROID
     setupAndroid();
-#endif
-#if defined(Q_OS_IOS)
-    setupIos();
 #endif
 }
 
@@ -636,19 +471,19 @@ void AppEngine::setupMaemo() {
 
     connect ( v2SettingsDialog, SIGNAL(cfgDialogAccepted()), rtvis, SLOT(possibleCfgChange()) );
 
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     QSettings settings("MultiDisplay", "UI");
     if ( settings.value("mobile/use_gps", QVariant(true)).toBool() )
         mGps = new MobileGPS (this);
     else
-        mGps = nullptr;
+        mGps = NULL;
     if ( settings.value("mobile/use_accel", QVariant(true)).toBool() )
         accelMeter = new Accelerometer(this);
     else
-        accelMeter = nullptr;
+        accelMeter = false;
 #else
-    mGps = nullptr;
-    accelMeter = nullptr;
+    mGps = NULL;
+    accelMeter = NULL;
 #endif
 
     //load TEST-DATA
@@ -671,26 +506,13 @@ void AppEngine::setupAndroid () {
 
     //Bluetooth
     connect (mds, SIGNAL(portOpened()), mvis1w, SLOT(disableReplay()));
-    connect (mds, SIGNAL(portOpened()), this, SLOT(androidStartLocationQuery()));
     connect (mds, SIGNAL(portClosed()), mvis1w, SLOT(enableReplay()));
 
     //V2 settings
     AndroidN75Dialog* an75 = new AndroidN75Dialog (amw, mds);
     connect (amw->ui->actionV2_N75_Settings, SIGNAL(triggered()), an75, SLOT(showMaximized()));
 
-    //TODO FIXME: refactor menu!
-    /*
-    delete (amw->ui->menuConfig);
-    amw->ui->menuConfig = nullptr;
-    delete ( amw->ui->actionSettings );
-    amw->ui->actionSettings = nullptr;
-    */
     connect (amw->ui->actionSettings, SIGNAL(triggered()), v2SettingsDialog, SLOT(showMaximized()));
-
-    //TODO dont works! :(
-    //QAction *a = new QAction("aha", amw->ui->menubar);
-    //amw->ui->menubar->addAction(a);
-    //connect(a, SIGNAL(triggered()), v2SettingsDialog, SLOT(showMaximized()));
 
     //    connect (amw->ui->actionV2_N75_Settings, SIGNAL(triggered()), v2N75SetupDialog, SLOT(showMaximized()));
 //    connect (v2N75SetupDialog, SIGNAL(n75reqDutyMap(quint8,quint8,quint8)), mds, SLOT(mdCmdReqN75DutyMap(quint8,quint8,quint8)));
@@ -718,27 +540,19 @@ void AppEngine::setupAndroid () {
 
 
     //Dashboard
-    //test: moved to AndroidDashboardDialog
-    //amw->ui->mainFrame->setContentsMargins(0,0,0,0);
+    amw->ui->mainFrame->setContentsMargins(0,0,0,0);
 
     add = new AndroidDashboardDialog( );
-    //rtvis = new RealTimeVis ( add );
-    rtvis = new RealTimeVis ( amw );
+    rtvis = new RealTimeVis ( add );
     connect (data, SIGNAL(rtNewDataRecord(MdDataRecord*)), rtvis, SLOT(visualize(MdDataRecord*)));
 
-    //test: moved to AndroidDashboardDialog
-    /*
     if ( QAndroidJniObject::callStaticMethod<jboolean>( "de/gummelinformatics/mui/MuiIntentHelper", "hasPermanentMenuKey" ))
         connect (amw->ui->dashboardPushButton, SIGNAL(clicked()), add, SLOT(showFullScreen()) );
     else
         connect (amw->ui->dashboardPushButton, SIGNAL(clicked()), add, SLOT(showMaximized()) );
-    */
 
-    connect (rtvis, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
     connect (mdcom, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
     connect (mds, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
-    connect (this, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
-    connect (data, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
     connect (mdcom, SIGNAL(portClosed()), amw, SLOT(btPortClosed()) );
     connect (mdcom, SIGNAL(portOpened()), amw, SLOT(btPortOpened()) );
 
@@ -748,19 +562,17 @@ void AppEngine::setupAndroid () {
     connect (amw->ui->actionClear, SIGNAL(triggered()) , this, SLOT(clearData()) );
 
 
-    QSettings settings;
-    //if ( settings.value("mobile/use_gps", QVariant(true)).toBool() )
-    //    mGps = new MobileGPS (this);
-    //else
-    mGps = nullptr;
+    QSettings settings("MultiDisplay", "UI");
+    if ( settings.value("mobile/use_gps", QVariant(true)).toBool() )
+        mGps = new MobileGPS (this);
+    else
+        mGps = NULL;
     if ( settings.value("mobile/use_accel", QVariant(true)).toBool() )
         accelMeter = new Accelerometer(this);
     else
-        accelMeter = nullptr;
+        accelMeter = false;
 
     connect ( v2SettingsDialog, SIGNAL(cfgDialogAccepted()), rtvis, SLOT(possibleCfgChange()) );
-
-    amw->showStatusMessage("Bluetooth autoconnect is ON");
 
     //http://qt-project.org/doc/qt-5/qandroidjniobject.html#details
 //    QAndroidJniObject activity = QtAndroid::androidActivity();
@@ -769,314 +581,98 @@ void AppEngine::setupAndroid () {
 #endif
 }
 
-void AppEngine::setupIos() {
-#if defined (Q_OS_IOS)
-    QSettings s;
-    qDebug() << "settings are stored in " << s.fileName();
-
-    connect (amw, SIGNAL(writeSettings()), this, SLOT(writeSettings()));
-
-    //Evaluations
-
-    //Vis1 (Graph)
-
-    //replay
-
-    //Bluetooth
-    connect (mds, SIGNAL(portOpened()), mvis1w, SLOT(disableReplay()));
-    connect (mds, SIGNAL(portOpened()), this, SLOT(androidStartLocationQuery()));
-    connect (mds, SIGNAL(portClosed()), mvis1w, SLOT(enableReplay()));
-
-    //V2 settings
-    /*
-    AndroidN75Dialog* an75 = new AndroidN75Dialog (amw, mds);
-    connect (amw->ui->actionV2_N75_Settings, SIGNAL(triggered()), an75, SLOT(showMaximized()));
-*/
-    //TODO FIXME: refactor menu!
-    /*
-    delete (amw->ui->menuConfig);
-    amw->ui->menuConfig = nullptr;
-    delete ( amw->ui->actionSettings );
-    amw->ui->actionSettings = nullptr;
-    */
-    connect (amw->ui->actionSettings, SIGNAL(triggered()), v2SettingsDialog, SLOT(showMaximized()));
-
-    connect (amw->ui->actionGearbox_settings, SIGNAL(triggered()), gearSettingsDialog, SLOT(showMaximized()) );
-    connect (amw->ui->actionAbout, SIGNAL(triggered()), aboutDialog, SLOT(showMaximized()));
-
-    add = new AndroidDashboardDialog( );
-    //rtvis = new RealTimeVis ( add );
-    rtvis = new RealTimeVis ( amw );
-    connect (data, SIGNAL(rtNewDataRecord(MdDataRecord*)), rtvis, SLOT(visualize(MdDataRecord*)));
-
-    connect (mdcom, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
-    connect (mds, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
-    connect (this, SIGNAL(showStatusMessage(QString)), amw, SLOT(showStatusMessage(QString)) );
-    connect (mdcom, SIGNAL(showStatusMessage(QString)), rtvis, SLOT(showStatusMessage(QString)) );
-    connect (mds, SIGNAL(showStatusMessage(QString)), rtvis, SLOT(showStatusMessage(QString)) );
-    connect (this, SIGNAL(showStatusMessage(QString)), rtvis, SLOT(showStatusMessage(QString)) );
-    connect (data, SIGNAL(showStatusMessage(QString)), rtvis, SLOT(showStatusMessage(QString)) );
-    connect (mdcom, SIGNAL(portClosed()), amw, SLOT(btPortClosed()) );
-    connect (mdcom, SIGNAL(portOpened()), amw, SLOT(btPortOpened()) );
-
-    connect (amw->ui->actionBluetoothToggleState, SIGNAL(triggered()), mdcom, SLOT(togglePort()) );
-    connect (amw->ui->actionSave, SIGNAL(triggered()) , this, SLOT(saveDataAs()) );
-    connect (amw->ui->actionOpen_Replay, SIGNAL(triggered()) , this, SLOT(openData()) );
-    connect (amw->ui->actionClear, SIGNAL(triggered()) , this, SLOT(clearData()) );
-
-
-    QSettings settings;
-    if ( settings.value("mobile/use_gps", QVariant(true)).toBool() )
-        mGps = new MobileGPS (this);
-    else
-        mGps = nullptr;
-    if ( settings.value("mobile/use_accel", QVariant(true)).toBool() )
-        accelMeter = new Accelerometer(this);
-    else
-        accelMeter = nullptr;
-
-    connect ( v2SettingsDialog, SIGNAL(cfgDialogAccepted()), rtvis, SLOT(possibleCfgChange()) );
-
-    rtvis->showStatusMessage("Bluetooth autoconnect");
-#endif
-}
-
-void AppEngine::reCreateDialogsAndroidFix()
-{
-#ifdef Q_OS_ANDROID
-    if ( v2SettingsDialog == nullptr ) {
-        v2SettingsDialog = new V2SettingsDialog(amw);
-        connect (amw->ui->actionSettings, SIGNAL(triggered()), v2SettingsDialog, SLOT(showMaximized()));
-        connect ( v2SettingsDialog, SIGNAL(cfgDialogAccepted()), rtvis, SLOT(possibleCfgChange()) );
-    }
-    if ( aboutDialog == nullptr ) {
-        aboutDialog = new AboutDialog(amw);
-        connect (amw->ui->actionAbout, SIGNAL(triggered()), aboutDialog, SLOT(showMaximized()));
-    }
-    if ( gearSettingsDialog == nullptr ) {
-        gearSettingsDialog = new GearSettingsDialog(amw);
-        connect (amw->ui->actionGearbox_settings, SIGNAL(triggered()), gearSettingsDialog, SLOT(showMaximized()));
-    } else {
-        connect (amw->ui->actionGearbox_settings, SIGNAL(triggered()), gearSettingsDialog, SLOT(showMaximized()));
-    }
-    if ( v2N75SetupDialog == nullptr ) {
-        v2N75SetupDialog = new V2N75SetupDialog(amw);
-        connect (amw->ui->actionV2_N75_Settings, SIGNAL(triggered()), v2N75SetupDialog, SLOT(showMaximized()));
-    }
-#endif
-}
-
-
 void AppEngine::show() {
-#if  !defined (Q_WS_MAEMO_5)  && !defined (Q_OS_ANDROID) && !defined (Q_OS_IOS)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (Q_OS_ANDROID)
     //Windows / Linux Desktop GUI
     pcmw->show();
 #endif
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     //Maemo Stacked Windows
     mmw->showMaximized();
     mmw->statusBar()->hide();
 #endif
-
 #if defined (Q_OS_ANDROID)
     jboolean permanentMenuKey = QAndroidJniObject::callStaticMethod<jboolean>( "de/gummelinformatics/mui/MuiIntentHelper", "hasPermanentMenuKey" );
     qDebug() << "hasPermanentMenuKey result: " << ( permanentMenuKey==true ? "true" : "false" );
     if ( permanentMenuKey ) {
         amw->showFullScreen();
-        //add->showFullScreen();
+        add->showFullScreen();
     } else {
         amw->showMaximized();
-        //add->showMaximized();
+        add->showMaximized();
     }
  #endif
-
-#if defined (Q_OS_IOS)
-    amw->showMaximized();
-    //amw->showFullScreen();
-#endif
 }
 
 void AppEngine::saveData () {
-    QString path;
 #if QT_VERSION >= 0x050000
-#if not defined (ANDROID)
-    path =  QStandardPaths::standardLocations (QStandardPaths::DocumentsLocation)[0]
+    QString path =  QStandardPaths::standardLocations (QStandardPaths::DocumentsLocation)[0]
             + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
-#endif
-#if defined (ANDROID)
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QAndroidJniObject s = QAndroidJniObject::callStaticObjectMethod( "de/gummelinformatics/mui/MuiIntentHelper", "getPublicDocumentPath", "()Ljava/lang/String;" );
 #else
-    QJniObject s = QJniObject::callStaticObjectMethod( "de/gummelinformatics/mui/MuiIntentHelper", "getPublicDocumentPath", "()Ljava/lang/String;" );
-#endif
-    path = s.toString() + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
-    qDebug() << "android save path 2020: " << path;
-#endif
-
-#else
-    //Qt 4.x
-    path = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation)
+    QString path = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation)
             + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
 #endif
 
     data->saveData(path);
-/*
-* disabled 2020-06: we already store gps and accel reading in MdDataRecord!
-#if  defined (Q_WS_MAEMO_5)  || defined (Q_OS_ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (Q_OS_ANDROID)
     if ( mGps ) {
         mGps->saveTrack (path + ".track");
         mGps->saveTrackBinary (path + ".trackB");
     }
 #endif
-*/
 }
 
 void AppEngine::saveDataAsCSV() {
-    QString path;
 #if QT_VERSION >= 0x050000
-#if not defined (ANDROID)
-    path =  QStandardPaths::standardLocations (QStandardPaths::DocumentsLocation)[0]
+    QString path =  QStandardPaths::standardLocations (QStandardPaths::DocumentsLocation)[0]
+            + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".csv";
+#else
+    QString path = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation)
             + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".csv";
 #endif
-#if defined (ANDROID)
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QAndroidJniObject s = QAndroidJniObject::callStaticObjectMethod( "de/gummelinformatics/mui/MuiIntentHelper", "getPublicDocumentPath", "()Ljava/lang/String;" );
-#else
-    QJniObject s = QJniObject::callStaticObjectMethod( "de/gummelinformatics/mui/MuiIntentHelper", "getPublicDocumentPath", "()Ljava/lang/String;" );
-#endif
-    path = s.toString() + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
-    qDebug() << "android save path 2019: " << path;
-#endif
-#else
-    //Qt 4.x
-    path = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation)
-            + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".csv";
-#endif
-
-    /*
-#if defined (ANDROID)
-    //Hack for sdcard
-    path = QString("/scard") + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
-#endif
-*/
-#if defined (Q_OS_LINUX)
-    QString fn = QFileDialog::getSaveFileName ( pcmw, QString("Select Filename"), path,
-                                                "CSV (*.csv)", nullptr, QFileDialog::DontUseNativeDialog);
-#else
     QString fn = QFileDialog::getSaveFileName ( pcmw, QString("Select Filename"), path,
                                                 "CSV (*.csv)");
-#endif
     if ( fn != "")
         data->saveDataCSV(fn);
 }
 
 void AppEngine::saveDataAs () {
-    QString path;
 #if QT_VERSION >= 0x050000
-#if not defined (ANDROID)
-    path =  QStandardPaths::standardLocations (QStandardPaths::DocumentsLocation)[0]
+    QString path =  QStandardPaths::standardLocations (QStandardPaths::DocumentsLocation)[0]
             + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
-#endif
-#if defined (ANDROID)
-    //QAndroidJniObject s = QAndroidJniObject::callStaticObjectMethod( "de/gummelinformatics/mui/MuiIntentHelper", "getPublicDocumentPath", "()Ljava/lang/String;" );
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QAndroidJniObject s = QAndroidJniObject::callStaticObjectMethod( "de/gummelinformatics/mui/MuiIntentHelper", "getPublicDownloadsPath", "()Ljava/lang/String;" );
 #else
-    QJniObject s = QJniObject::callStaticObjectMethod( "de/gummelinformatics/digifant/MuiIntentHelper", "getPublicDownloadsPath", "()Ljava/lang/String;" );
-#endif
-    path = s.toString() + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
-    qDebug() << "android save path 2019: " << path;
-#endif
 
-#else
-    //Qt 4.x
-    path = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation)
+    QString path = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation)
             + QDir::separator() + QDateTime::currentDateTime ().toString("yyyy-MM-ddThhmm") + ".mdv2";
 #endif
 
-#if defined (ANDROID)
-    QString fn = path;
-    //QString fn = QFileDialog::getSaveFileName( amw, QString("Select File"), path, "mdv2 (*.mdv2)" );
-    //dont show select window because there is no native android dialog -> qt desktop dialog sucks on mobile
-    qDebug() << "android: save file instantly to " + path;
-    //TODO FIXME Android: use native save dialog !
-    //https://codereview.qt-project.org/c/qt/qtbase/+/251238
-    emit showStatusMessage( "save to " + fn );
-#else
-#if defined (Q_OS_LINUX)
-    QString fn = QFileDialog::getSaveFileName ( pcmw, QString("Select Filename"), path,
-                                                "mdv2 (*.mdv2)", nullptr, QFileDialog::DontUseNativeDialog);
-#else
     QString fn = QFileDialog::getSaveFileName ( pcmw, QString("Select Filename"), path,
                                                 "mdv2 (*.mdv2)");
-#endif
-#endif
     if ( fn != "") {
-        if ( ! data->saveData(fn) ) {
-            qDebug() << "save failed!";
-            emit showStatusMessage( "save failed!" );
-        } else {
-#if defined (ANDROID)
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            QAndroidJniObject jsPath = QAndroidJniObject::fromString(path);
-            QAndroidJniObject jsTitle = QAndroidJniObject::fromString("digifant log");
-            QAndroidJniObject jsMimeType = QAndroidJniObject::fromString("application/digifant-ecu");
-#else
-            QJniObject jsPath = QJniObject::fromString(path);
-            QJniObject jsTitle = QJniObject::fromString("digifant log");
-            QJniObject jsMimeType = QJniObject::fromString("application/digifant-ecu");
-#endif
-            int requestId = 0;
-            /*
-                        QAndroidJniObject::callStaticObjectMethod("de/gummelinformatics/mui/MuiIntentHelper",
-                                                                  "sendFile",
-                                                                  "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I;Landroid/content/Context;)V",
-                                                                  jsPath.object<jstring>(), jsTitle.object<jstring>(), jsMimeType.object<jstring>(), requestId, QtAndroid::androidContext().object() );
-                                                                  */
-            // JNI DETECTED ERROR IN APPLICATION: use of invalid jobject 0xc131ba50
-            //QAndroidJniObject::callStaticMethod<void>("de/gummelinformatics/mui/MuiIntentHelper",
-            //                                          "sendFileSimple",
-            //                                          "(Ljava/lang/String;Landroid/content/Context;)V", path.toLocal8Bit().data(), QtAndroid::androidContext().object() );
-
-#endif
-        }
-/*
- * disabled 2020-06: we already store gps and accel reading in MdDataRecord!
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+        data->saveData(fn);
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
         if ( mGps ) {
             mGps->saveTrack (fn + ".track");
             mGps->saveTrackBinary (fn + ".trackB");
         }
 #endif
-*/
     }
 }
 void AppEngine::openData ( QString fn ) {
     if ( fn == "" ) {
         //, QString("~"), QString("*.mdd")
 //        QString path = QDesktopServices::storageLocation (QDesktopServices::DocumentsLocation);
-#if defined (Q_OS_LINUX)
-        fn = QFileDialog::getOpenFileName ( pcmw, tr("Select Filename"), directory, tr("mdv2 (*.mdv2)"), nullptr, QFileDialog::DontUseNativeDialog);
-#else
-        fn = QFileDialog::getOpenFileName ( pcmw, tr("Select Filename"), directory, tr("mdv2 (*.mdv2)"), nullptr);
-#endif
+        fn = QFileDialog::getOpenFileName ( pcmw, QString("Select Filename"), directory, "mdv2 (*.mdv2)" );
     }
 
-//#if defined (ANDROID)
-//    //Hack for sdcard
-//    fn = QString("/scard");
-//#endif
-
-
-    if ( ! fn.isNull() ) {
+    if ( fn != "") {
         directory = QFileInfo(fn).path(); // store path for next time
-        qDebug() << "set new directory " << directory;
+        qDebug() << "directory " << directory;
 
-#ifdef Q_WS_MAEMO5
+#ifdef QT_MAEMO5_ENABLE
         mmw->setAttribute(Qt::WA_Maemo5ShowProgressIndicator);
 #endif
         mds->closePort();
-        //clearData();
 
         dashboardActualizeSave = getActualizeDashboard() ;
         vis1ActualizeSave = getActualizeVis1();
@@ -1088,15 +684,15 @@ void AppEngine::openData ( QString fn ) {
         setActualizeDashboard( dashboardActualizeSave );
         setActualizeVis1( vis1ActualizeSave );
 
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
         mmw->setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
 
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID and not defined Q_OS_IOS
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
         emit showStatusBarSampleCount( QString::number(data->size()) );
 #endif
 
-#if defined Q_OS_ANDROID or defined Q_OS_IOS
+#if defined Q_OS_ANDROID
         //start replay on android
         replayData();
 #else
@@ -1111,32 +707,17 @@ void AppEngine::clearData () {
     mds->closePort();
     data->clearData();
 
-#if defined Q_OS_ANDROID or defined Q_OS_IOS
+#if defined Q_OS_ANDROID
     if ( replay && ( replayThread->isRunning() || replayThread->isFinished() ) )
         replay->stop();
 #endif
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID and not defined Q_OS_IOS
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     emit showStatusMessage( QString::number(data->size()) );
 #endif
 }
 
 void AppEngine::changeSerialOptions() {
-    bool isBt = false;
-    if ( mySerialOptionsDialog->getUi()->portComboBox->currentText() == "bluetooth" ) {
-        isBt = true;
-        if ( qobject_cast<MdBluetoothWrapper*>(mds) == nullptr ) {
-            mds->changeComInstance( new MdBluetoothWrapper(this) );
-        }
-    } else {
-#if not defined (Q_OS_IOS)
-        if ( qobject_cast<MdQSerialPortCom*>(mds) == nullptr ) {
-            mds->changeComInstance( new MdQSerialPortCom(this) );
-        }
-#endif
-    }
-    //TODO mac osx dynamic names like /dev/tty.usbserial-A900JFA
-    if ( !isBt )
-        mds->changePortSettings ( mySerialOptionsDialog->getUi()->portComboBox->currentText(), mySerialOptionsDialog->getUi()->speedComboBox->currentText() );
+    mds->changePortSettings ( mySerialOptionsDialog->getUi()->portComboBox->currentText(), mySerialOptionsDialog->getUi()->speedComboBox->currentText() );
 }
 
 void AppEngine::changeDataWinMarkMicroLeft () {
@@ -1188,7 +769,7 @@ void AppEngine::changeDataWinSize (int ns) {
 void AppEngine::writeSettings () {
     QSettings settings;
 
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID and not defined Q_OS_IOS
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     settings.beginGroup("MainWindow");
     settings.setValue("size", pcmw->size());
     settings.setValue("pos", pcmw->pos());
@@ -1196,8 +777,7 @@ void AppEngine::writeSettings () {
     settings.endGroup();
 #endif
 
-    if ( data->getVisPlot() )
-        data->getVisPlot()->writeSettings();
+    data->getVisPlot()->writeSettings();
 
     //FIXME -> V2
 //    settings.beginGroup("boostpid");
@@ -1221,7 +801,7 @@ void AppEngine::writeSettings () {
     settings.setValue ("MapSensor", dfBoostTransferFunction->name() );
     settings.endGroup();
 
-#if  defined (Q_WS_MAEMO_5) || defined (Q_OS_ANDROID) || defined (Q_OS_IOS)
+#if  defined (QT_MAEMO5_ENABLE) || defined (Q_OS_ANDROID)
     if ( mGps )
         settings.setValue("mobile/use_gps", QVariant(true) );
     else
@@ -1246,7 +826,7 @@ void AppEngine::writeSettings () {
 void AppEngine::readSettings () {
     QSettings settings("MultiDisplay", "UI");
 
-#if !defined(Q_WS_MAEMO_5) && !defined(ANDROID) && !defined(Q_OS_IOS)
+#if !defined(QT_MAEMO5_ENABLE) && !defined(ANDROID)
     settings.beginGroup("MainWindow");
     pcmw->resize(settings.value("size", QSize(800, 480)).toSize());
     pcmw->move(settings.value("pos", QPoint(200, 200)).toPoint());
@@ -1254,15 +834,13 @@ void AppEngine::readSettings () {
     settings.endGroup();
 #endif
 
-    if ( data->getVisPlot() )
-        data->getVisPlot()->readSettings();
+    data->getVisPlot()->readSettings();
 
 
     mySerialOptionsDialog->getUi()->portComboBox->setCurrentIndex( settings.value ("mdserial/port", 0).toInt() );
     mySerialOptionsDialog->getUi()->speedComboBox->setCurrentIndex( settings.value ("mdserial/speed", 0).toInt() );
-#if not defined ( Q_OS_ANDROID ) && not defined (Q_OS_IOS)
-    changeSerialOptions();
-    //mds->changePortSettings( mySerialOptionsDialog->getUi()->portComboBox->currentText(), mySerialOptionsDialog->getUi()->speedComboBox->currentText() );
+#if not defined ( Q_OS_ANDROID )
+    mds->changePortSettings( mySerialOptionsDialog->getUi()->portComboBox->currentText(), mySerialOptionsDialog->getUi()->speedComboBox->currentText() );
 #else
     //HACK FIXME to open the spp profile with starting name mdv2
     mds->changePortSettings ("", 0);
@@ -1309,11 +887,11 @@ void AppEngine::closeEvent(QCloseEvent *event) {
 
 
 void AppEngine::replayData() {
-#if defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID and not defined Q_OS_IOS
+#if defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     replaySpeedUpFactor = mvis1w->ui->ReplaySpinBox->value();
     replayStartAtPos = data->getVisPlot()->windowBegin();
 #endif
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID and not defined Q_OS_IOS
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     if ( !pcmw->ui.ReplayCurPos->isChecked() )
         replayStartAtPos = 0;
     else
@@ -1323,18 +901,18 @@ void AppEngine::replayData() {
 
     replayThread->start();
 
-#if defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID and not defined Q_OS_IOS
+#if defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     DataViewSlider->setValue( DataViewSlider->minimum() );
 #endif
 }
 
 void AppEngine::changeDVSliderUp() {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     DataViewSlider->setValue( DataViewSlider->value() - DataViewSlider->singleStep() );
 #endif
 }
 void AppEngine::changeDVSliderDown() {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     DataViewSlider->setValue( DataViewSlider->value() + DataViewSlider->singleStep() );
 #endif
 }
@@ -1346,13 +924,3 @@ void AppEngine::changeDVSliderMax() {
     DataViewSlider->setValue( DataViewSlider->maximum() );
 }
 
-void AppEngine::androidStartLocationQuery() {
-#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    QSettings settings;
-    if ( settings.value("mobile/use_gps", QVariant(true)).toBool() ) {
-        mGps = new MobileGPS (this);
-        qDebug() << "created MobileGPS instance";
-    } else
-      mGps = nullptr;
-#endif
-}

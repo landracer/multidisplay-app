@@ -40,7 +40,6 @@
 #include <QSplitter>
 #include <QMenu>
 #include <QAction>
-#include <QPointer>
 
 #define MAXVALUES 9
 #define MAXVAL_BOOST 0
@@ -268,12 +267,6 @@ public:
             QTableView* dataView=NULL);
     virtual ~MdData();
 
-    enum accTimingState {
-           NoMeasure = 0,
-           Measuring
-    };
-    Q_ENUM(accTimingState)
-
     void addDataRecord (MdDataRecord* nr, bool doReplot=true);
     void checkMaxValues (MdDataRecord* nr);
 
@@ -344,8 +337,6 @@ public slots:
 
     void clearPlots();
     void visualizeDataRecord (MdDataRecord* nr, bool doReplot=true);
-    //! evaluate a new data record
-    void evaluateDataRecord (MdDataRecord* nr);
 
     //! helper for operations on selected cells; list is not sorted!
     QList<int> helperGetUniqueRows (QItemSelectionModel *select );
@@ -360,16 +351,15 @@ private:
 
     QVector<QString> headerColNames;
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QSplashScreen* splash = nullptr;
-    QProgressBar* progressBar = nullptr;
+    QSplashScreen* splash;
+    QProgressBar* progressBar;
     QLabel* splashLabel;
-#endif
 
     QMainWindow* mainWindow;
 
-    QPointer<BoostPidPlot> boostPidPlot;
-    QPointer<VisualizationPlot> visPlot;
+    BoostPidPlot* boostPidPlot;
+    VisualizationPlot* visPlot;
+//    VisualizationPlot* visPlot2;
 
     V2PowerDialog* powerDialog;
     WotEventsDialog* wotEventsDialog;
@@ -388,7 +378,6 @@ private:
     QAction *dataViewContextMenuSaveMarkedRows;
     QAction *dataViewContextMenuDelItemAction;
     QAction *dataViewContextMenuDigifantBoost2MdBoost;
-    QAction *dataViewContextMenuDigifantNbLambda2WbLambda;
     QAction *dataViewContextMenuShowinVis1;
     QAction *dataViewContextMenuPowerPlot;
     QAction *dataViewContextMenuPowerPlotGPS;
@@ -413,18 +402,8 @@ private:
     ColorOverBlend *injectorDutyBlend;
 
     Map16x1_ISV *isvMap;
-    QPointer<Map16x1_NbLambda> nbLambdaMap = nullptr;
 
     MaxDataSet* maxValues[MAXVALUES];
-
-    int accTimingStartSpeed = 100;
-    int accTimingEndSpeed = 200;
-    accTimingState accTimingState = NoMeasure;
-    double accTiming_last_speed = 0;
-    bool accTiming_gps=false;
-    int accTiming_li = 0;
-    int accTiming_ui = 0;
-    QList<int> accTiming_rowList = QList<int>();
 };
 
 

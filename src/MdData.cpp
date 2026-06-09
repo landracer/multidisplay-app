@@ -40,10 +40,11 @@
 #include <QtCore/qmath.h>
 #include <math.h>
 #include <QSplashScreen>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QProgressBar>
-#include <QPair>
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID) || defined (Q_OS_IOS)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
 #include "mobile/Accelerometer.h"
 #include "mobile/MobileGPS.h"
 #endif
@@ -54,7 +55,7 @@
 #include <QFileDialog>
 #endif
 
-MaxDataSet::MaxDataSet () : p(nullptr) {
+MaxDataSet::MaxDataSet () : p(NULL) {
 
 }
 
@@ -63,22 +64,13 @@ MdData::MdData (QMainWindow* mw_boost, QWidget* parent_boost, QMainWindow* mw_vi
 
 {
     this->dataView = dataView;
-    if ( parent_boost )
-        boostPidPlot = new BoostPidPlot ( mw_boost, parent_boost );
-    else
-        boostPidPlot = nullptr;
-    if ( boostPidPlot ) {
-        boostPidPlot->replot();
-        plotList.push_back ( (MdPlot*) visPlot );
-    }
+    boostPidPlot = new BoostPidPlot ( mw_boost, parent_boost );
+    boostPidPlot->replot();
 
 //    visTabSplitter = new QSplitter(parent_vis1);
 //    visTabSplitter->setOrientation(Qt::Vertical);
 
-    if ( parent_vis1 )
-        visPlot = new VisualizationPlot ( mw_vis1, parent_vis1, dataView );
-    else
-        visPlot = nullptr;
+    visPlot = new VisualizationPlot ( mw_vis1, parent_vis1, dataView );
 
 //    hbl = new QHBoxLayout();
 //    hbl->addWidget(visTabSplitter);
@@ -92,66 +84,66 @@ MdData::MdData (QMainWindow* mw_boost, QWidget* parent_boost, QMainWindow* mw_vi
 //    sl->append(200);
 //    visTabSplitter->setSizes(*sl);
 //    qDebug() << visTabSplitter->sizes();
-    if ( visPlot ) {
-        visPlot->replot();
-        plotList.push_back ( (MdPlot*) boostPidPlot );
-    }
+    visPlot->replot();
 
-    headerColNames.push_back(tr("Time"));
-    headerColNames.push_back(tr("RPM"));
-    headerColNames.push_back(tr("Boost"));
-    headerColNames.push_back(tr("Throttle"));
-    headerColNames.push_back(tr("Lambda"));
-    headerColNames.push_back(tr("LMM"));
-    headerColNames.push_back(tr("CaseTemp"));
-    headerColNames.push_back(tr("AGT0"));
-    headerColNames.push_back(tr("AGT1"));
-    headerColNames.push_back(tr("AGT2"));
-    headerColNames.push_back(tr("AGT3"));
-    headerColNames.push_back(tr("AGT4"));
-    headerColNames.push_back(tr("AGT5"));
-    headerColNames.push_back(tr("AGT6"));
-    headerColNames.push_back(tr("AGT7"));
-    headerColNames.push_back(tr("Battery V"));
-    headerColNames.push_back(tr("VDO Pres1"));
-    headerColNames.push_back(tr("VDO Pres2"));
-    headerColNames.push_back(tr("VDO Pres3"));
-    headerColNames.push_back(tr("VDO Temp1"));
-    headerColNames.push_back(tr("VDO Temp2"));
-    headerColNames.push_back(tr("VDO Temp3"));
-    headerColNames.push_back(tr("Speed"));
-    headerColNames.push_back(tr("Gear"));
-    headerColNames.push_back(tr("N75 duty"));
-    headerColNames.push_back(tr("N75 Pid Bst"));
-    headerColNames.push_back(tr("N75 Map duty"));
-    headerColNames.push_back(tr("EFR speed"));
+    plotList.push_back ( (MdPlot*) boostPidPlot );
+    plotList.push_back ( (MdPlot*) visPlot );
+
+    headerColNames.push_back("Time");
+    headerColNames.push_back("RPM");
+    headerColNames.push_back("Boost");
+    headerColNames.push_back("Throttle");
+    headerColNames.push_back("Lambda");
+    headerColNames.push_back("LMM");
+    headerColNames.push_back("CaseTemp");
+    headerColNames.push_back("AGT0");
+    headerColNames.push_back("AGT1");
+    headerColNames.push_back("AGT2");
+    headerColNames.push_back("AGT3");
+    headerColNames.push_back("AGT4");
+    headerColNames.push_back("AGT5");
+    headerColNames.push_back("AGT6");
+    headerColNames.push_back("AGT7");
+    headerColNames.push_back("Battery V");
+    headerColNames.push_back("VDO Pres1");
+    headerColNames.push_back("VDO Pres2");
+    headerColNames.push_back("VDO Pres3");
+    headerColNames.push_back("VDO Temp1");
+    headerColNames.push_back("VDO Temp2");
+    headerColNames.push_back("VDO Temp3");
+    headerColNames.push_back("Speed");
+    headerColNames.push_back("Gear");
+    headerColNames.push_back("N75 duty");
+    headerColNames.push_back("N75 Pid Bst");
+    headerColNames.push_back("N75 Map duty");
+    headerColNames.push_back("EFR speed");
 
     //Digifant
-    headerColNames.push_back(tr("DF Ignition"));
-    headerColNames.push_back(tr("DF Ign Retard"));
-    headerColNames.push_back(tr("DF Injection"));
-    headerColNames.push_back(tr("DF IAT"));
-    headerColNames.push_back(tr("DF ECT"));
-    headerColNames.push_back(tr("DF raw knock"));
-    headerColNames.push_back(tr("DF boost"));
-    headerColNames.push_back(tr("DF cold startup enrich"));
-    headerColNames.push_back(tr("DF warm startup enrich"));
-    headerColNames.push_back(tr("DF ect enrich"));
-    headerColNames.push_back(tr("DF iat enrich"));
-    headerColNames.push_back(tr("DF counter startup enrich"));
-    headerColNames.push_back(tr("DF voltage"));
-    headerColNames.push_back(tr("DF acc enrich"));
-    headerColNames.push_back(tr("DF ect inj addon"));
-    headerColNames.push_back(tr("DF Lambda NB vs WB and flags"));
-    headerColNames.push_back(tr("DF CO"));
-    headerColNames.push_back(tr("DF ISV"));
-    headerColNames.push_back(tr("DF LC flags"));
-    headerColNames.push_back(tr("Kline dbg"));
+    headerColNames.push_back("DF Ignition");
+    headerColNames.push_back("DF Ign Retard");
+    headerColNames.push_back("DF Injection");
+    headerColNames.push_back("DF IAT");
+    headerColNames.push_back("DF ECT");
+    headerColNames.push_back("DF raw knock");
+    headerColNames.push_back("DF boost");
+    headerColNames.push_back("DF cold startup enrich");
+    headerColNames.push_back("DF warm startup enrich");
+    headerColNames.push_back("DF ect enrich");
+    headerColNames.push_back("DF iat enrich");
+    headerColNames.push_back("DF counter startup enrich");
+    headerColNames.push_back("DF voltage");
+    headerColNames.push_back("DF acc enrich");
+    headerColNames.push_back("DF ect inj addon");
+    headerColNames.push_back("DF Lambda Raw");
+    headerColNames.push_back("DF CO");
+    headerColNames.push_back("DF ISV");
+    headerColNames.push_back("DF LC flags");
+    headerColNames.push_back("Kline dbg");
 
-    headerColNames.push_back(tr("GPS Coordinates"));
-    headerColNames.push_back(tr("GPS Speed"));
-    headerColNames.push_back(tr("GPs Altitude"));
-    headerColNames.push_back(tr("Acceleration"));
+    headerColNames.push_back("GPS Coordinates");
+    headerColNames.push_back("GPS Speed");
+    headerColNames.push_back("GPs Altitude");
+    headerColNames.push_back("Acceleration");
 
 //    rtvis = 0;
 
@@ -161,20 +153,19 @@ MdData::MdData (QMainWindow* mw_boost, QWidget* parent_boost, QMainWindow* mw_vi
                 this, SLOT(tableDataView_customContextMenu( const QPoint& )));
 
         dataViewContextMenu = new QMenu (dataView);
-        dataViewContextMenuSaveMarkedRows = dataViewContextMenu->addAction(tr("save marked rows as new file"));
-        dataViewContextMenuDelItemAction = dataViewContextMenu->addAction(tr("delete marked rows"));
-        dataViewContextMenuDigifantBoost2MdBoost = dataViewContextMenu->addAction(tr("convert Digifant Boost to Md Boost"));
-        dataViewContextMenuDigifantNbLambda2WbLambda = dataViewContextMenu->addAction(tr("Digifant NB Lambda 2 Wb (EXPERT)"));
-        dataViewContextMenuShowinVis1 = dataViewContextMenu->addAction(tr("show in Vis1"));
-        dataViewContextMenuPowerPlot = dataViewContextMenu->addAction(tr("Power / Torque plot"));
-        dataViewContextMenuPowerPlotGPS = dataViewContextMenu->addAction(tr("Power / Torque plot (GPS)"));
-        dataViewContextMenuCalc100to200 = dataViewContextMenu->addAction(tr("Calc 100-200km/h time"));
-        dataViewContextMenuCalc100to200GPS = dataViewContextMenu->addAction(tr("Calc 100-200km/h time (GPS)"));
-        dataViewContextMenuFindWotEvents = dataViewContextMenu->addAction(tr("find WOT events"));
-        dataViewContextMenuFindKnockEvents = dataViewContextMenu->addAction(tr("find Knock events"));
-        dataViewContextMenuFindHighEGTEvents = dataViewContextMenu->addAction(tr("find high EGT (>950 ") + QString(QChar(0x00B0)) + tr("C) events"));
-        dataViewContextMenuFindLcEvents = dataViewContextMenu->addAction(tr("find LC events"));
-        dataViewContextMenuCheckEvents = dataViewContextMenu->addAction(tr("check"));
+        dataViewContextMenuSaveMarkedRows = dataViewContextMenu->addAction("save marked rows as new file");
+        dataViewContextMenuDelItemAction = dataViewContextMenu->addAction("delete marked rows");
+        dataViewContextMenuDigifantBoost2MdBoost = dataViewContextMenu->addAction("convert Digifant Boost to Md Boost");
+        dataViewContextMenuShowinVis1 = dataViewContextMenu->addAction("show in Vis1");
+        dataViewContextMenuPowerPlot = dataViewContextMenu->addAction("Power / Torque plot");
+        dataViewContextMenuPowerPlotGPS = dataViewContextMenu->addAction("Power / Torque plot (GPS)");
+        dataViewContextMenuCalc100to200 = dataViewContextMenu->addAction("Calc 100-200km/h time");
+        dataViewContextMenuCalc100to200GPS = dataViewContextMenu->addAction("Calc 100-200km/h time (GPS)");
+        dataViewContextMenuFindWotEvents = dataViewContextMenu->addAction("find WOT events");
+        dataViewContextMenuFindKnockEvents = dataViewContextMenu->addAction("find Knock events");
+        dataViewContextMenuFindHighEGTEvents = dataViewContextMenu->addAction("find high EGT (>950 " + QString(QChar(0x00B0)) + "C) events");
+        dataViewContextMenuFindLcEvents = dataViewContextMenu->addAction("find LC events");
+        dataViewContextMenuCheckEvents = dataViewContextMenu->addAction("check");
     }
 
     egtBlend = new ColorOverBlend (QColor( Qt::green), QColor(Qt::yellow), QColor(Qt::red), 880, 920, 940);
@@ -200,16 +191,13 @@ MdData::MdData (QMainWindow* mw_boost, QWidget* parent_boost, QMainWindow* mw_vi
 
     connect ( wotEventsDialog, SIGNAL(jumpToDataIdx(int)), this, SLOT(showDataListIdx(int)) );
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    splash = new QSplashScreen (parent_boost);
+    splash = new QSplashScreen (QPixmap());
+    splash->setParent(parent_boost);
     progressBar = new QProgressBar(parent_boost);
     splash->setLayout ( new QHBoxLayout () );
     splashLabel = new QLabel (splash);
     splash->layout()->addWidget(splashLabel);
     splash->layout()->addWidget( progressBar );
-#endif
-
-    nbLambdaMap = new Map16x1_NbLambda();
 }
 
 MdData::~MdData() {
@@ -244,7 +232,7 @@ MdData::~MdData() {
 }
 
 void MdData::writeSettings () {
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID) && !defined (Q_OS_IOS)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     QSettings settings("MultiDisplay", "UI");
     settings.beginGroup("DataTableView");
     for (int i=0 ; i<headerColNames.size() ; i++) {
@@ -254,7 +242,7 @@ void MdData::writeSettings () {
 #endif
 }
 void MdData::readSettings () {
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID) && !defined (Q_OS_IOS)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     QSettings settings("MultiDisplay", "UI");
     settings.beginGroup("DataTableView");
     for (int i=0 ; i<headerColNames.size() ; i++) {
@@ -281,7 +269,6 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
 
     dataViewContextMenuDelItemAction->setEnabled( select->hasSelection() );
     dataViewContextMenuDigifantBoost2MdBoost->setEnabled( select->hasSelection() );
-    dataViewContextMenuDigifantNbLambda2WbLambda->setEnabled( select->hasSelection() );
 
     QAction *a = dataViewContextMenu->exec(dataView->viewport()->mapToGlobal(pos));
     if (a == dataViewContextMenuDelItemAction) {
@@ -321,39 +308,8 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
         QList<int> dr = helperGetUniqueRows ( select );
         foreach (int i, dr) {
             MdSensorRecord *record = dataList.at( size - i - 1)->getSensorR();
-#if defined (DIGIFANTVANAPP)
-            record->setBoost( tf->map(record->df_boost_raw));
-#else
             //HACK set ambient pressure to 100kpa!
             record->setBoost( qFloor ( ((tf->map(record->df_boost_raw) - 100) / 100) *100) / 100.0 );
-#endif
-#if defined (DIGIFANTAPP)
-            if ( record->df_flags & 8 && record->getThrottle() == 0)
-                record->setThrottle(100);
-            else {
-                if ( record->df_flags & 0x10 && record->getThrottle() == 0)
-                    ;
-                else
-                    if ( record->getThrottle() == 0 )
-                        record->setThrottle (50);
-            }
-#endif
-        }
-    }
-
-    if ( a == dataViewContextMenuDigifantNbLambda2WbLambda ) {
-        QPointer<Map16x1_NbLambda> nbLambdaMap = new Map16x1_NbLambda();
-        int size = dataList.size();
-        //only 1 cell of a row has to be selected
-        QList<int> dr = helperGetUniqueRows ( select );
-        foreach (int i, dr) {
-            MdSensorRecord *record = dataList.at( size - i - 1)->getSensorR();
-            int df_lambda_raw = record->df_lambda;
-            double df_O2_mVolts = (df_lambda_raw * (-7.0626000))+1661.300;
-            if( df_O2_mVolts < 0)
-              df_O2_mVolts = 0;
-            double df_lambda_nb = nbLambdaMap->mapValue(df_O2_mVolts);
-            record->setLambda( df_lambda_nb );
         }
     }
 
@@ -361,7 +317,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
         //first selected element
         Q_ASSERT (select != NULL);
         QList<int> rows;
-        if ( select != nullptr ) {
+        if ( select != NULL ) {
             //complete row is selected
             QModelIndexList sr = select->selectedRows();
             if ( ! sr.isEmpty() ) {
@@ -382,11 +338,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                     }
                 }
             }
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            qSort (rows.begin(), rows.end());
-#else
             std::sort (rows.begin(), rows.end());
-#endif
             emit showRecordInVis1( rows.at ( rows.size()/2 ) );
             qDebug() << "show in vis1 " << rows.at ( rows.size()/2 )  << " time=" << dataList.at(dataList.size() - rows.at ( rows.size()/2 ) - 1)->getSensorR()->getTime();
         }
@@ -394,7 +346,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
     if ( a == dataViewContextMenuPowerPlot || a == dataViewContextMenuPowerPlotGPS ) {
         QList<int> rows;
         Q_ASSERT (select != NULL);
-        if ( select != nullptr ) {
+        if ( select != NULL ) {
             //complete row is selected
             QModelIndexList sr = select->selectedRows();
             if ( ! sr.isEmpty() ) {
@@ -411,11 +363,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                 }
             }
             if ( ! rows.isEmpty() ) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                qSort (rows.begin(), rows.end());
-#else
                 std::sort (rows.begin(), rows.end());
-#endif
                 if ( a == dataViewContextMenuPowerPlotGPS )
                     powerDialog->powerPlot()->setData (dataList, rows, true);
                 else
@@ -427,7 +375,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
     if ( a == dataViewContextMenuCalc100to200 ) {
         QList<int> rows;
         Q_ASSERT (select != NULL);
-        if ( select != nullptr ) {
+        if ( select != NULL ) {
             //complete row is selected
             QModelIndexList sr = select->selectedRows();
             if ( ! sr.isEmpty() ) {
@@ -444,16 +392,12 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                 }
             }
             if ( ! rows.isEmpty() ) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                qSort (rows.begin(), rows.end());
-#else
                 std::sort (rows.begin(), rows.end());
-#endif
                 QMap<qreal,SpeedData> time = powerDialog->powerPlot()->calculateTimeBetweenSpeeds (dataList, rows, 100, 200);
-                qDebug() << tr("100-200km/h in ") << QString::number(time[-1].time_s, 'f',2) << " msecs";
+                qDebug() << "100-200km/h in " << QString::number(time[-1].time_s, 'f',2) << " msecs";
                 if ( time[-1].time_s > 0 ) {
-                    QString s = tr("100-200 km/h in ") + QString::number(time[-1].time_s, 'f', 2) + tr(" secs (Geschwindigkeit aus GALA Signal von Tacho)");
-                    s += tr("\nkm/h\ttime[s]\tt delta\talt delta\talt(GPS)");
+                    QString s = "100-200 km/h in " + QString::number(time[-1].time_s, 'f', 2) + " secs (Geschwindigkeit aus GALA Signal von Tacho)";
+                    s += "\nkm/h\ttime[s]\tt delta\talt delta\talt(GPS)";
                     foreach ( qreal sp , time.keys() ) {
                         if ( sp != -1 ) {
                             s += "\n" + QString::number(sp)
@@ -464,7 +408,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                         }
                     }
 
-                    QMessageBox::information (nullptr, tr("time 100-200 km/h"),s);
+                    QMessageBox::information (NULL, "time 100-200 km/h",s);
                 }
             }
         }
@@ -472,7 +416,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
     if ( a == dataViewContextMenuCalc100to200GPS ) {
         QList<int> rows;
         Q_ASSERT (select != NULL);
-        if ( select != nullptr ) {
+        if ( select != NULL ) {
             //complete row is selected
             QModelIndexList sr = select->selectedRows();
             if ( ! sr.isEmpty() ) {
@@ -489,18 +433,13 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                 }
             }
             if ( ! rows.isEmpty() ) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                qSort (rows.begin(), rows.end());
-#else
                 std::sort (rows.begin(), rows.end());
-#endif
                 QMap<qreal,SpeedData> time = powerDialog->powerPlot()->calculateTimeBetweenSpeedsGPS (dataList, rows, 100, 200);
                 qDebug() << "100-200km/h in " << time[-1].time_s << " msecs";
                 if ( time[-1].time_s > 0 ) {
 
-                    QString s = tr("100-200 km/h in ") + QString::number(time[-1].time_s, 'f', 2) + tr(" secs (GPS)");
-                    s += tr("\nkm/h\ttime[s]\tt delta\talt delta\talt(GPS)");
-                    bool valid = true;
+                    QString s = "100-200 km/h in " + QString::number(time[-1].time_s, 'f', 2) + " secs (GPS)";
+                    s += "\nkm/h\ttime[s]\tt delta\talt delta\talt(GPS)";
                     foreach ( qreal sp , time.keys() ) {
                         if ( sp != -1 )
                             s += "\n" + QString::number(sp)
@@ -508,15 +447,8 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                                     + "\t" + QString::number(time[sp].time_delta, 'f', 2)
                                     + "\t" + QString::number(time[sp].alt_delta, 'f', 2)
                                     + "\t" + QString::number(time[sp].alt, 'f', 2);
-                        else {
-                            valid = time[sp].valid;
-                            if ( valid )
-                                s += "\n" + tr("VALID") + "\n";
-                            else
-                                s += "\n" + tr("NOT VALID") + "\n";
-                        }
                     }
-                    QMessageBox::information (nullptr, tr("time 100-200 km/h"),s);
+                    QMessageBox::information (NULL, "time 100-200 km/h",s);
                 }
             }
         }
@@ -525,11 +457,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
     if ( a==dataViewContextMenuSaveMarkedRows ) {
         //list is sorted
         QList<int> dr = helperGetUniqueRows ( select );
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        qSort (dr.begin(), dr.end());
-#else
         std::sort (dr.begin(), dr.end());
-#endif
         qDebug() << dr;
 //        qDebug() << "dataList.size() - dr.begin() - 1, dataList.size() - dr.end() - 1);
 #if QT_VERSION >= 0x050000
@@ -540,7 +468,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                 + QDir::separator() + "selection.mdv2";
 #endif
 
-        QString fn = QFileDialog::getSaveFileName ( nullptr, QString(tr("Select Filename")), path,
+        QString fn = QFileDialog::getSaveFileName ( NULL, QString("Select Filename"), path,
                                                     "mdv2 (*.mdv2)");
         saveData (fn, dataList.size() - dr.back() - 1, dataList.size() - dr.front() - 1);
     }
@@ -618,9 +546,7 @@ int MdData::getLastTime () {
 }
 
 void MdData::findWot () {
-    QPair <int,int> idxPair;
     QList <int> wotIdxL;
-    QList < QPair<int,int> > wotIdxPL;
     #define STATE_NO_WOT 1
     #define STATE_WOT_START 2
     #define STATE_WOT_FOUND 3
@@ -628,7 +554,6 @@ void MdData::findWot () {
     int wot_start_time = 0;
     int wot_end_time = 0;
     int wot_start_idx = 0;
-    int wot_end_idx = 0;
 
     for ( int i = 0 ; i < dataList.size() ; i++ ) {
         switch ( state ) {
@@ -637,32 +562,11 @@ void MdData::findWot () {
                 if ( wot_end_time + 2000 > dataList[i]->getSensorR()->getTime() ) {
                     //delta between two WOT events too small -> discard the 2. wot event
                     //we have just a gear change here!
-                    QTime t = QTime(0, 0, 0, 0);
-                    t = t.addMSecs( dataList[i]->getSensorR()->getTime() );
-                    QString t1 = t.toString("hh:mm:ss.zzz");
-                    //qDebug() << "gear change " << t1;
-                    wot_end_time = dataList[i]->getSensorR()->getTime();
-                    wot_end_idx = i;
-                    idxPair.second = wot_end_idx;
-                    state = STATE_WOT_FOUND;
+                   state = STATE_WOT_FOUND;
                 } else {
                     state = STATE_WOT_START;
                     wot_start_time = dataList[i]->getSensorR()->getTime();
                     wot_start_idx = i;
-                    //new Wot event -> append the old one
-                    //->append
-                    if ( idxPair.first > 0 && (idxPair.first != idxPair.second) ) {
-                        wotIdxPL.append (idxPair);
-                        idxPair.first = 0;
-                    }
-                }
-            } else {
-                //no new wot event after 3secs -> append the old one
-                if ( wot_end_time + 3000 < dataList[i]->getSensorR()->getTime() ) {
-                    if ( idxPair.first > 0 && (idxPair.first != idxPair.second) ) {
-                        wotIdxPL.append (idxPair);
-                        idxPair.first = 0;
-                    }
                 }
             }
             break;
@@ -673,8 +577,6 @@ void MdData::findWot () {
                 if ( wot_start_time + 2000 < dataList[i]->getSensorR()->getTime()  ) {
                     //2 secs wot
                     state = STATE_WOT_FOUND;
-                    idxPair.first = wot_start_idx;
-                    //alt
                     wotIdxL.append(wot_start_idx);
                 }
             }
@@ -683,30 +585,15 @@ void MdData::findWot () {
             if ( dataList[i]->getSensorR()->getThrottle() < 80 ) {
                 state = STATE_NO_WOT;
                 wot_end_time = dataList[i]->getSensorR()->getTime();
-                wot_end_idx = i;
-                idxPair.second = wot_end_idx;
             }
             break;
         }
     }
 
-    /*
-    qDebug()<<"old boost search";
     foreach ( int i, wotIdxL ) {
-        qDebug() << "WOT event @ " << dataList[i]->getSensorR()->getTime() << " RPM=" << dataList[i]->getSensorR()->getRpm() << " boost=" << dataList[i]->getSensorR()->getBoost();
+        qDebug() << "WOT event @ " << dataList[i]->getSensorR()->getTime() << " RPM=" << dataList[i]->getSensorR()->getRpm() << " bosot=" << dataList[i]->getSensorR()->getBoost();
     }
-    */
-    qDebug()<<"new boost search";
-    foreach ( auto p, wotIdxPL ) {
-        QTime t = QTime(0, 0, 0, 0);
-        t = t.addMSecs( dataList[p.first]->getSensorR()->getTime() );
-        QString t1 = t.toString("hh:mm:ss.zzz");
-        t = QTime(0, 0, 0, 0);
-        t = t.addMSecs( dataList[p.second]->getSensorR()->getTime() );
-        QString t2 = t.toString("hh:mm:ss.zzz");
-        qDebug() << "WOT event @ " << t1 << " - " << t2 << " RPM=" << dataList[p.first]->getSensorR()->getRpm() << " boost=" << dataList[p.first]->getSensorR()->getBoost();
-    }
-    wotEventsDialog->show( wotIdxPL );
+    wotEventsDialog->show( wotIdxL );
 }
 
 QList<int> MdData::findKnock(bool showWindow) {
@@ -917,19 +804,16 @@ QList<int> MdData::findLc ( bool showWindow ) {
 
 void MdData::checkData () {
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+
     splash->show();
-    splashLabel->setText(tr("Analyzing data..."));
+    splashLabel->setText("Analyzing data...");
     splash->finish(wotEventsDialog);
-#endif
 
     int eventCount = 0;
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     progressBar->setMaximum(3);
     progressBar->setValue(0);
     QCoreApplication::processEvents();
-#endif
 
     //egt
     QList<int> egtL = findHighEGT( false );
@@ -944,10 +828,9 @@ void MdData::checkData () {
     edm["data"] = egtVL;
     edm["icon"] = QVariant("dialog-warning");
     p["EGT"] = edm;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     progressBar->setValue(1);
     QCoreApplication::processEvents();
-#endif
+
     //knock
     QList<int> knockL = findKnock( false );
     QList<QVariant> knockVL;
@@ -960,10 +843,9 @@ void MdData::checkData () {
     km["data"] = knockVL;
     km["icon"] = QVariant("dialog-information");
     p["Knock"] = km;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     progressBar->setValue(2);
     QCoreApplication::processEvents();
-#endif
+
     QList<int> dcL = findInjectorHighDC( false );
     QList<QVariant> dcVL;
     foreach ( int i, dcL ) {
@@ -976,20 +858,16 @@ void MdData::checkData () {
     dcm["data"] = dcVL;
     dcm["icon"] = QVariant("dialog-warning");
     p["Inj duty cycle"] = dcm;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     progressBar->setValue(3);
     QCoreApplication::processEvents();
-#endif
+
     if ( eventCount > 0 )
         wotEventsDialog->show ( p );
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     else
         splash->hide();
-#endif
 }
 
 void MdData::showCfgVis1 () {
-    if ( visPlot )
         visPlot->showCfgDialog();
 }
 void MdData::showCfgDataTable() {
@@ -1022,16 +900,8 @@ bool MdData::saveDataCSV ( const QString& filename ) {
                 return false;
         QTextStream ts (&file);
 
-        int throttleCol = -1;
-        for(int i = 0; i < columnCount(); i++)
-        {
-          if ( headerData(i, Qt::Horizontal).toString() == tr("Throttle") )
-              throttleCol = i;
-        }
-
         //Header
         bool first = true;
-
         foreach (QString col, headerColNames) {
             if ( first ) {
                 ts << col;
@@ -1042,28 +912,20 @@ bool MdData::saveDataCSV ( const QString& filename ) {
         ts << "\n";
 
 
-        //for ( int r = 0 ; r < rowCount() ; ++r ) {
-        //backward
-        for ( int r = rowCount()-1 ; r>= 0 ; --r ) {
+        for ( int r = 0 ; r < rowCount() ; ++r ) {
             first = true;
             for ( int c = 0 ; c < columnCount() ; ++c ) {
                 if ( first ) {
                     ts << data(QAbstractItemModel::createIndex(r,c)).toString();
                     first = false;
-                } else {
-                    if ( c != throttleCol )
-                        ts << "\t" << data(QAbstractItemModel::createIndex(r,c)).toString();
-                    else {
-                        //export only number, throw string to /dev/null " | WOT"
-                        ts << "\t" << data(QAbstractItemModel::createIndex(r,c)).toString().split(" |")[0];
-                    }
-                }
+                } else
+                    ts << "\t" << data(QAbstractItemModel::createIndex(r,c)).toString();
             }
             ts << "\n";
         }
 
         file.close();
-        emit showStatusMessage (tr("CSV data exported to File") + " " + filename);
+        emit showStatusMessage ("CSV data exported to File " + filename);
         return true;
 }
 
@@ -1093,7 +955,7 @@ bool MdData::saveData ( const QString& filename, int begin, int end ) {
             }
         }
         file.close();
-        emit showStatusMessage (tr("Data saved to File") + " " + filename + " (" + QString::number(l) + " " + tr("rows") + ")");
+        emit showStatusMessage ("Data saved to File " + filename + " (" + QString::number(l) + " rows)");
         return true;
 }
 
@@ -1109,8 +971,8 @@ bool MdData::loadData ( const QString& filename ) {
 	ds >> magic;
 	ds >> version;
 
-        int l = 0;
-	MdDataRecord* r = nullptr;
+    int l = 0;
+	MdDataRecord* r = NULL;
         Map16x1_Voltage vmap;
 
         switch ( version ) {
@@ -1150,7 +1012,7 @@ bool MdData::loadData ( const QString& filename ) {
             }
             break;
         default:
-            QMessageBox::critical  ( nullptr, QString("wrong file version"),
+            QMessageBox::critical  ( NULL, QString("wrong file version"),
                                      QString("load of incompatible file version ")  + QString::number(version) + QString(" attempted!") );
             return false;
         }
@@ -1176,9 +1038,9 @@ bool MdData::loadData ( const QString& filename ) {
 	file.close();
 	replot();
 
-    emit showStatusMessage (tr("Data loaded from File") + " " + filename + " (" + QString::number(l) + " " + tr("rows") + ")");
+    emit showStatusMessage ("Data loaded from File " + filename + " (" + QString::number(l) + " rows)");
 
-#if  defined (Q_WS_MAEMO_5)  || defined (Q_OS_ANDROID) || defined (Q_OS_IOS)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (Q_OS_ANDROID)
     //disabled on mobile
     ;
 #else
@@ -1191,30 +1053,17 @@ bool MdData::loadData ( const QString& filename ) {
 
 void MdData::clearData () {
     foreach ( MdPlot* p, plotList) {
-		if ( p != nullptr )
-            p->clear();
+		p->clear();
 	}
 
-    if ( dataList.size() > 1 ) {
-        beginRemoveRows( QModelIndex(), 0, dataList.size()-1 );
-        foreach ( MdDataRecord* r , dataList )
+    beginRemoveRows( QModelIndex(), 0, dataList.size()-1 );
+	foreach ( MdDataRecord* r , dataList )
 			delete (r);
-        dataList.clear();
-        endRemoveRows();
-    }
-    accTimingState = NoMeasure;
-    accTiming_last_speed = 0;
-    accTiming_gps=false;
-    accTiming_li = 0;
-    accTiming_ui = 0;
-    accTiming_rowList.clear();
-    powerDialog->powerPlot()->accTimingList.clear();
+	dataList.clear();
+    endRemoveRows();
 }
 
 void MdData::addDataRecord (MdDataRecord *nr, bool doReplot) {
-    //fix lambda df / md
-    //nr->getSensorR()->setBatcur( nr->getSensorR()->df_voltage );
-
 	insertRows(dataList.size(), 1, QModelIndex());
 	dataList.push_back(nr);
     if ( dataView ) {
@@ -1223,7 +1072,6 @@ void MdData::addDataRecord (MdDataRecord *nr, bool doReplot) {
         ;
     }
 	visualizeDataRecord(nr, doReplot);
-    evaluateDataRecord(nr);
 }
 
 void MdData::checkMaxValues (MdDataRecord* nr) {
@@ -1233,8 +1081,7 @@ void MdData::checkMaxValues (MdDataRecord* nr) {
 //neu *************************************************
 void MdData::clearPlots() {
     foreach ( MdPlot* p, plotList) {
-        if ( p != nullptr )
-          p->clear();
+        p->clear();
     }
 }
 
@@ -1346,12 +1193,12 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
 
 //                    QString tip = "Power " + QString::number(power/1000, 'f', 2) + " (kW) " + QString::number( (power*1.34)/1000, 'f', 2 ) + " (hp/PS)";
 //                    qDebug() << tip;
-                    QString tip2 = tr("Power (wheel)") + " " + QString::number( wpower/1000, 'f', 2)
-                            + " (kW) " + QString::number( (wpower*1.34)/1000, 'f', 2 ) + " (" + tr("HP")+")"
-                            + "\n" + tr("Engine Power") + " "  + QString::number( epower/1000, 'f', 2)
-                            + " (kW) " + QString::number( (epower*1.34)/1000, 'f', 2 ) + " (" + tr("HÜ")+")"
-                            + "\n" + tr("Engine Power DIN 70020") + " "  + QString::number( dinpower/1000, 'f', 2)
-                            + " (kW) " + QString::number( (dinpower*1.34)/1000, 'f', 2 ) + " (" + tr("Hp")+")" + " " + QString::number(torque, 'f', 2) + "Nm";
+                    QString tip2 = "Power (wheel) " + QString::number( wpower/1000, 'f', 2)
+                            + " (kW) " + QString::number( (wpower*1.34)/1000, 'f', 2 ) + " (Hp/PS)"
+                            + "\n" + "Engine Power "  + QString::number( epower/1000, 'f', 2)
+                            + " (kW) " + QString::number( (epower*1.34)/1000, 'f', 2 ) + " (Hp/PS)"
+                            + "\n" + "Engine Power DIN 70020 "  + QString::number( dinpower/1000, 'f', 2)
+                            + " (kW) " + QString::number( (dinpower*1.34)/1000, 'f', 2 ) + " (Hp/PS)" + " " + QString::number(torque, 'f', 2) + "Nm";
                     qDebug() << tip2;
                     return QVariant (tip2);
                 }
@@ -1364,26 +1211,12 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
                 return QVariant ( s );
             }
             //DF lambda debug
-            case 4:
             case 43:  {
-#if defined (DIGIFANT_LAMBDA_DEBUG)
             /*
               df_cyl4_knock_decay = b_58_oxs_pause
-              df_cold_startup_enrichment = oxs_P_timer
-              df_warm_startup_enrichment = oxs_I_timer
-              df_ect_enrichment << 8 + df_ect_injection_addon = oxs_I_comp
-              df_cyl2_knock_decay = oxs_P_addon
-              df_cyl3_knock_decay = oxs_I_addon
+              df_col
               */
-                int df_lambda_raw = dataList.at(r)->getSensorR()->df_lambda;
-                //double df_O2_AD_Volts = (df_lambda_raw*5.0/255);
-                double df_O2_mVolts = (df_lambda_raw * (-7.0626000))+1661.300;  // info from Vanagon O2 analysis
-                if( df_O2_mVolts < 0)
-                    df_O2_mVolts = 0;
-                double df_lambda_nb = nbLambdaMap->mapValue(df_O2_mVolts);
-
-                QString res = "Lambda debug (" + QString::number( dataList.at(r)->getSensorR()->getLambda(), 'f', 2)
-                        + " NB " + QString::number (df_lambda_nb, 'f', 2) + "): \n";
+                QString res = "Lambda = " + QString::number( dataList.at(r)->getSensorR()->getLambda(), 'f', 2 ) + "\n";
                 res += "oxs_pause = " + QString::number( dataList.at(r)->getSensorR()->df_cyl4_knock_decay ) + "\n";
                 res += "oxs_P_timer " + QString::number( (qint8) dataList.at(r)->getSensorR()->df_cold_startup_enrichment)  + "\n";
                 res += "oxs_I_timer " + QString::number( (qint8) dataList.at(r)->getSensorR()->df_warm_startup_enrichment)  + "\n";
@@ -1391,12 +1224,10 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
                 res += "oxs P = " + QString::number( (qint8) dataList.at(r)->getSensorR()->df_cyl2_knock_decay )  + "\n";
                 res += "oxs I = " + QString::number( (qint8) dataList.at(r)->getSensorR()->df_cyl3_knock_decay )  + "\n";
                 res += "oxs I comp = " + QString::number( (qint16) oxs_i_comp )  + "\n";
-                res += "inj time usec: " + QString::number ( dataList.at(r)->getSensorR()->df_inj_time ) + "\n";
-                res += "df lambda adc: 0x" + QString::number ( dataList.at(r)->getSensorR()->df_lambda, 16 ).toUpper() + "\n";
 
-                res += "Flags ";
+                res += "Flags = ";
                 quint8 oxs_state = (dataList.at(r)->getSensorR()->df_flags & 0x60) >> 5;
-                QString oxs_state_str;
+                QString oxs_state_str = QString::number( oxs_state ) + " | ";
                 if ( oxs_state == 0)
                     oxs_state_str += "LEAN";
                 if ( oxs_state == 2)
@@ -1404,13 +1235,13 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
                 if ( oxs_state == 3)
                     oxs_state_str += "STOICH";
                 res += oxs_state_str;
-                if ( ((dataList.at(r)->getSensorR()->df_flags) & 0x2) != 2 )
-                    res += " | OOB";
+                if ( ((dataList.at(r)->getSensorR()->df_flags) & 0x2) == 2 )
+                    res += " | 2";
+                else
+                    res += " | !2";
 
                 return QVariant(res);
-#else
-                return QVariant("DIGIFANT_LAMBDA_DEBUG unset!");
-#endif
+
                 break;
             }
 
@@ -1431,10 +1262,6 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
             t = t.addMSecs( dataList.at(r)->getColumn(index.column()).toInt() );
             return QVariant (t.toString("hh:mm:ss.zzz"));
         }
-        //Boost
-        if ( index.column() == 2 ) {
-            return QVariant ( QString::number (dataList.at(r)->getSensorR()->getBoost(),'f',2) );
-        }
         //Throttle
         if ( index.column() == 3 ) {
             QString res = dataList.at(r)->getColumn(index.column()).toString() + " | ";
@@ -1443,35 +1270,6 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
                 res += "WOT";
             else if ( dataList.at(r)->getSensorR()->df_flags & 0x10 )
                 res += "Idle";
-            return QVariant(res);
-        }
-        //Lambda
-        if ( index.column() == 4 ) {
-            QString res = QString::number(dataList.at(r)->getSensorR()->getLambda(), 'f',2 );
-#if defined DIGIFANT_LAMBDA_DEBUG
-            quint8 oxs_state = (dataList.at(r)->getSensorR()->df_flags & 0x60) >> 5;
-            QString oxs_state_str = " ";
-            bool append = false;
-            if ( oxs_state == 0) {
-                oxs_state_str += "LEAN";
-                if ( dataList.at(r)->getSensorR()->getLambda() <= 1.0 )
-                    append = true;
-            }
-            if ( oxs_state == 2) {
-                oxs_state_str += "RICH";
-                if ( dataList.at(r)->getSensorR()->getLambda() >= 1.0 )
-                    append = true;
-            }
-            if ( oxs_state == 3) {
-                oxs_state_str += "STOICH";
-                if ( dataList.at(r)->getSensorR()->getLambda() != 1.0 )
-                    append = true;
-            }
-            if ( ((dataList.at(r)->getSensorR()->df_flags) & 0x2) != 2 )
-                oxs_state_str += " | OOB";
-            if ( append )
-                res += oxs_state_str;
-#endif
             return QVariant(res);
         }
         //speed
@@ -1485,18 +1283,10 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
             }
             if (  last >= 0 ) {
                 double gpsSpeedDelta = dataList.at(r)->getMobileR()->gpsGroundSpeed - dataList.at(last)->getMobileR()->gpsGroundSpeed;
-                res += " ( " +  QString::number(dataList.at(r)->getMobileR()->gpsGroundSpeed, 'f', 1) + "/" + QString::number(gpsSpeedDelta, 'f', 1) + " / "  + QString::number(dataList.at(r)->getMobileR()->gpsUpdateCount) + " GPS)";
+                res += " ( " +  QString::number(dataList.at(r)->getMobileR()->gpsGroundSpeed) + "/" + QString::number(gpsSpeedDelta, 'f', 1) + " / "  + QString::number(dataList.at(r)->getMobileR()->gpsUpdateCount) + " GPS)";
             }
 
             return QVariant(res);
-        }
-        //EFR speed
-        if ( index.column() == 27 ) {
-            return QVariant ( QString::number (dataList.at(r)->getSensorR()->efr_speed ,'f',0) );
-        }
-        //DF ignition
-        if ( index.column() == 28 ) {
-            return QVariant ( QString::number (dataList.at(r)->getSensorR()->df_ignition ,'f',1) );
         }
         //df injection time
         if ( index.column() == 30 ) {
@@ -1506,38 +1296,12 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
             res += QString::number( dataList.at(r)->getSensorR()->df_inj_duty, 'f', 1 ) + "%";
             return QVariant(res);
         }
-        //DF battery voltage
-        if ( index.column() == 40 ) {
-            return QVariant ( QString::number (dataList.at(r)->getSensorR()->df_voltage,'f',2) );
-        }
         //DF lambda
         if ( index.column() == 43 ) {
-            QString res = " Flags ";
-            quint8 oxs_state = (dataList.at(r)->getSensorR()->df_flags & 0x60) >> 5;
-            QString oxs_state_str;
-            if ( oxs_state == 0)
-                oxs_state_str += "LEAN";
-            if ( oxs_state == 2)
-                oxs_state_str += "RICH";
-            if ( oxs_state == 3)
-                oxs_state_str += "STOICH";
-            res += oxs_state_str;
-            if ( ((dataList.at(r)->getSensorR()->df_flags) & 0x2) == 2 )
-                res += " |";
-            else
-                res += " | OOB";
-
-            int df_lambda_raw = dataList.at(r)->getColumn(index.column()).toInt();
-            //double df_O2_AD_Volts = (df_lambda_raw*5.0/255);
-            double df_O2_mVolts = (df_lambda_raw * (-7.0626000))+1661.300;  // info from Vanagon O2 analysis
-            if( df_O2_mVolts < 0)
-                df_O2_mVolts = 0;
-            double df_lambda_nb = nbLambdaMap->mapValue(df_O2_mVolts);
-            QString ls = "NB " + QString::number (df_lambda_nb, 'f', 2) + " "
-                    //+ QString::number (df_O2_mVolts/1000, 'f',2) + " V "
-                    + "WB " + QString::number (dataList.at(r)->getSensorR()->getLambda(),'f',2);
-            ls += res;
-            return QVariant(ls);
+            QString res = dataList.at(r)->getColumn(index.column()).toString();
+            res += " " + QString::number( (qint8) dataList.at(r)->getSensorR()->df_cyl2_knock_decay );
+            res += " " + QString::number( (qint8) dataList.at(r)->getSensorR()->df_cyl3_knock_decay );
+            return QVariant(res);
         }
         //LC Flags
         if ( index.column() == 46 ) {
@@ -1578,11 +1342,7 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
         return dataList.at(r)->getColumn(index.column());
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (role == Qt::BackgroundColorRole) {
-#else
     if (role == Qt::BackgroundRole) {
-#endif
         int r = dataList.size() - index.row() - 1;
         switch ( index.column() ) {
             case 3:
@@ -1678,10 +1438,10 @@ bool MdData::removeRows ( int row, int count, const QModelIndex & parent ) {
 }
 
 void MdData::visualizeDataRecord (MdDataRecord* nr, bool doReplot) {
-    if ( nr->getSensorR() != nullptr && boostPidPlot ) {
+    if ( nr->getSensorR() != NULL ) {
         boostPidPlot->addRecord(nr->getSensorR(), doReplot );
     }
-    if ( nr->getSensorR() != nullptr && visPlot ) {
+    if ( nr->getSensorR() != NULL ) {
         visPlot->addRecord(nr->getSensorR(), doReplot );
     }
     emit rtNewDataRecord(nr);
@@ -1691,89 +1451,7 @@ void MdData::visualizeDataRecord (MdDataRecord* nr, bool doReplot) {
 //	if ( doReplot ) {
 //		visPlot->replot();
 //		boostPidPlot->replot();
-    //	}
-}
-
-void MdData::evaluateDataRecord(MdDataRecord *nr)
-{
-    double speed = nr->getSensorR()->getSpeed();
-
-    switch (accTimingState) {
-    case NoMeasure:
-        if ( speed == 0 ) {
-            if ( nr->getMobileR() != nullptr ) {
-                speed = nr->getMobileR()->gpsGroundSpeed;
-                accTiming_gps = true;
-            }
-        } else
-                accTiming_gps = false;
-        if ( accTiming_last_speed < accTimingStartSpeed && speed > accTimingStartSpeed ) {
-            //start
-            accTiming_li = dataList.size()-2;
-            accTiming_rowList.push_back(accTiming_li);
-            accTiming_rowList.push_back(accTiming_li+1);
-            accTimingState = Measuring;
-            emit showStatusMessage(QString::number(accTimingStartSpeed) + "-" + QString::number(accTimingEndSpeed) + " km/h Start!");
-        } else
-            accTiming_li = 0;
-        accTiming_last_speed = speed;
-        break;
-    case Measuring:
-        if ( accTiming_gps )
-            speed = nr->getMobileR()->gpsGroundSpeed;
-        if ( accTiming_last_speed < accTimingEndSpeed && speed > accTimingEndSpeed ) {
-            //finish!
-            accTiming_ui = dataList.size()-1;
-            accTiming_rowList.push_back(accTiming_ui);
-            accTimingState = NoMeasure;
-            //now calculate it
-            std::sort (accTiming_rowList.begin(), accTiming_rowList.end());
-            QMap<qreal,SpeedData> time;
-            if ( accTiming_gps )
-                time = powerDialog->powerPlot()->calculateTimeBetweenSpeedsGPS (dataList, accTiming_rowList, accTimingStartSpeed, accTimingEndSpeed);
-            else
-                time = powerDialog->powerPlot()->calculateTimeBetweenSpeeds (dataList, accTiming_rowList, accTimingStartSpeed, accTimingEndSpeed);
-            accTiming_rowList = QList<int>();
-            qDebug() << accTimingStartSpeed << "-" << accTimingEndSpeed << " km/h in " << time[-1].time_s << " msecs";
-            if ( time[-1].time_s > 0 ) {
-                QString s = QString::number(accTimingStartSpeed) + "-" + QString::number(accTimingEndSpeed) + " km/h in " + QString::number(time[-1].time_s, 'f', 2) + " secs";
-                if ( accTiming_gps )
-                    s += " GPS";
-                if ( time[-1].valid )
-                    s += " " + tr("VALID");
-                else
-                    s += " " + tr("INVALID!");
-                qDebug() << "acceleration timing : " << s;
-                //TODO overlay!
-                //TODO store performance data / ui!
-                emit showStatusMessage(s);
-                QString s2 = tr("km/h\ttime[s]\tt delta\talt delta\talt(GPS)");
-                foreach ( qreal sp , time.keys() ) {
-                    if ( sp != -1 ) {
-                        s2 += "\n" + QString::number(sp)
-                                + "\t" + QString::number(time[sp].time_s, 'f', 2)
-                                + "\t" + QString::number(time[sp].time_delta, 'f', 2)
-                                + "\t" + QString::number(time[sp].alt_delta, 'f', 2)
-                                + "\t" + QString::number(time[sp].alt, 'f', 2);
-                    }
-                }
-                emit showStatusMessage(s2);
-                powerDialog->powerPlot()->accTimingList.push_back(time);
-            }
-        } else {
-            if ( speed > accTimingStartSpeed ) {
-                if ( dataList.at(accTiming_li)->getSensorR()->getTime() + 30000 < nr->getSensorR()->getTime() ) {
-                    //abort
-                    accTimingState = NoMeasure;
-                    accTiming_rowList = QList<int>();
-                } else {
-                    accTiming_rowList.append( dataList.size()-1 );
-                }
-            }
-        }
-        accTiming_last_speed = speed;
-        break;
-    }
+//	}
 }
 
 QList<MdDataRecord*> & MdData::getData() {
@@ -1786,8 +1464,7 @@ int MdData::size() {
 
 void MdData::replot() {
 	foreach ( MdPlot* p, plotList)
-      if ( p != nullptr )
-        p->replot();
+			p->replot();
 }
 
 
@@ -1804,36 +1481,29 @@ int MdData::changeDataWinMarkToDisplayRecord (const int &element, const int &max
 
 void MdData::changeDataWinMarkMicroRelative (const int &quotient, const bool &left, const int &maxMark) {
 	foreach ( MdPlot* p, plotList ) {
-        if ( p != nullptr ) {
-            p->setWinMarkMicroRelative(quotient, left, maxMark);
-            p->replot();
-        }
+		p->setWinMarkMicroRelative(quotient, left, maxMark);
+		p->replot();
 	}
 }
 
 void MdData::changeDataWinMark (const int &nm, const int &maxMark) {
 //        qDebug() << "changeDataWinMark new value=" << nm << " maxMark=" << maxMark;
 	foreach ( MdPlot* p, plotList ) {
-        if ( p!=nullptr) {
-            p->setWinMark(nm ,maxMark);
-            p->replot();
-        }
+		p->setWinMark(nm ,maxMark);
+		p->replot();
 	}
 }
 void MdData::changeDataWinSize (const int &ns) {
 //	qDebug() << "changeDataWinSize new value=" << ns;
 	foreach ( MdPlot* p, plotList ) {
-        if ( p != nullptr ) {
-            p->setWinSize(ns);
-            p->replot();
-        }
+		p->setWinSize(ns);
+		p->replot();
 	}
 
 }
 
 void MdData::toggleZoomMode() {
-    if ( visPlot )
-        visPlot->toggleZoomMode();
+	visPlot->toggleZoomMode();
 }
 
 
@@ -2420,7 +2090,7 @@ MdDataRecord::MdDataRecord ( ) {
 MdDataRecord::MdDataRecord(MdSensorRecord *sr) : sensorR(sr)  {
     mobileR = new MobileSensorRecord();
 
-#if defined ( Q_WS_MAEMO_5 ) or defined ( Q_OS_ANDROID ) or defined (Q_OS_IOS)
+#if defined ( QT_MAEMO5_ENABLE )
     Accelerometer* a = AppEngine::getInstance()->getAccelerometer();
     MobileGPS* g = AppEngine::getInstance()->getGps();
 
@@ -2435,8 +2105,7 @@ MdDataRecord::MdDataRecord(MdSensorRecord *sr) : sensorR(sr)  {
         mobileR->gpsTimestamp = g->lastPos().timestamp();
         mobileR->gpsCoordinateString = g->lastPos().coordinate().toString();
         mobileR->gpsAltitude = g->lastPos().coordinate().altitude();
-        //convert m/s -> km/h
-        mobileR->gpsGroundSpeed = 3.6 * (g->lastPos().attribute(QGeoPositionInfo::GroundSpeed));
+        mobileR->gpsGroundSpeed = g->lastPos().attribute(QGeoPositionInfo::GroundSpeed);
         mobileR->gpsDirection = g->lastPos().attribute(QGeoPositionInfo::Direction);
         mobileR->gpsHorizontalAccuracy = g->lastPos().attribute(QGeoPositionInfo::HorizontalAccuracy);
         mobileR->gpsVerticalAccuracy = g->lastPos().attribute(QGeoPositionInfo::VerticalAccuracy);

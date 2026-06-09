@@ -32,6 +32,7 @@
 #include "serialoptions.h"
 #include "AppEngine.h"
 
+class MdSerialCom;
 class MdData;
 class CarPcDemoWidget;
 class EvaluationWindow;

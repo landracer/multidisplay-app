@@ -338,10 +338,10 @@ void AndroidN75Dialog::timerUpdateWrite () {
         wt->start(25);
     else {
         next_gear_write = 99;
-#if  !defined (Q_WS_MAEMO_5)
+#if  !defined (QT_MAEMO5_ENABLE)
         QMessageBox::information(this, "N75 maps", "write complete", QMessageBox::Ok);
 #endif
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
 //        QMaemo5InformationBox::information ( this, "write complete", 0 );
         QMessageBox::information(this, "N75 maps", "write complete", QMessageBox::Ok);
 #endif

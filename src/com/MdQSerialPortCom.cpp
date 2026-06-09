@@ -24,17 +24,20 @@
 
 
 
-MdQSerialPortCom::MdQSerialPortCom(QObject *parent) : MdAbstractCom(parent) {
+MdQSerialPortCom::MdQSerialPortCom(QObject *parent) : MdAbstractCom(parent), port(0)
+{
 }
 
-MdQSerialPortCom::~MdQSerialPortCom() {
-    if ( port != nullptr ) {
+MdQSerialPortCom::~MdQSerialPortCom()
+{
+    if ( port ) {
         delete port;
-        port = nullptr;
+        port = 0;
     }
 }
 
-void MdQSerialPortCom::togglePort() {
+void MdQSerialPortCom::togglePort()
+{
     if ( port ) {
         if ( port->isOpen() )
             closePort();

@@ -22,9 +22,6 @@ public:
     qreal time_delta;
     qreal alt_delta;
     qreal alt;
-    bool valid = true;
-    int startSpeed = 0;
-    int endSpeed = 0;
 };
 
 class PowerPlot : public MdPlot
@@ -115,8 +112,6 @@ private:
     QMap<int,double> smoothedSpeed;
     QMap<int,double> smoothedRPM;
     QMap<int,double> smoothedTime;
-public:
-    QList< QMap<qreal,SpeedData> > accTimingList = QList< QMap<qreal,SpeedData> >();
 };
 
 

@@ -69,12 +69,7 @@ void MdGpsSerial::incomingData( const QByteArray& bytes) {
     QString s (bytes);
     emit bytesRead ( bytes );
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    //deprecated
-    QStringList sl = s.split (QRegExp("\\r\\n]") );
-#else
-    QStringList sl = s.split (QRegularExpression("\\r\\n]") );
-#endif
+    QStringList sl = s.split (QRegularExpression("\\r\\n"));
     QString rs;
     for ( int i = 1 ; i <= sl.size() ; i++ ) {
         bool t = true;
@@ -110,100 +105,16 @@ $GPRMC,232241.000,A,4909.4071,N,00702.2012,E,0.33,26.15,201013,,,A*59
 */
 
     bool allData = true;
-#if defined ( Q_WS_MAEMO_5 )  || defined ( Q_OS_ANDROID )
+#if defined ( QT_MAEMO5_ENABLE )  || defined ( Q_OS_ANDROID )
     posInfo.setCoordinate(coordinate);
 #endif
 //    parseBuffer.append (l);
     parseBuffer = l;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    //XXYY.ZZZZ
-    QRegExp WGS84 ("(\\d\\d)(\\d\\d\\.\\d\\d\\d\\d)");
-    //$GPRMC,HHMMSS,A,BBBB.BBBB,b,LLLLL.LLLL,l,GG.G,RR.R,DDMMYY,M.M,m,F*PP
-    //$GPRMC,213337.500,A,4909.4154,N,00702.2017,E,0.19,63.13,211013,,,A*52
-    QRegExp gprmcR ("\\$GPRMC,([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w\\*]*)\\r\\n");
-    int match = gprmcR.indexIn(parseBuffer);
-    if ( match > -1 ) {
-        QTime gpsTime = QTime::fromString(gprmcR.cap(1), "hhmmss.zzz");
-        bool gpsValid = false;
-        if (gprmcR.cap(2) == "A")
-            gpsValid = true;
-        QString latitude = gprmcR.cap(3);
-        double latitudeDeg=666;
-        if ( WGS84.indexIn(latitude) > -1 ) {
-            //XXYY.ZZZZ ⇒ XX° + (YY.ZZZZ / 60)°
-            latitudeDeg = WGS84.cap(1).toInt() + ( WGS84.cap(2).toDouble() / 60 );
-        }
-        //A positive latitude indicates the Northern Hemisphere, and a negative latitude indicates the Southern Hemisphere.
-        QString latNS = gprmcR.cap(4);
-        if ( latNS == "S")
-            latitudeDeg = latitudeDeg * -1;
-
-        QString longitude = gprmcR.cap(5);
-        double longitudeDeg=666;
-        if ( WGS84.indexIn(longitude) > -1 ) {
-            //XXYY.ZZZZ ⇒ XX° + (YY.ZZZZ / 60)°
-            longitudeDeg = WGS84.cap(1).toInt() + ( WGS84.cap(2).toDouble() / 60 );
-        }
-        //A positive longitude indicates the Eastern Hemisphere, and a negative longitude indicates the Western Hemisphere.
-        QString longEW = gprmcR.cap(6);
-        if ( longEW == "W")
-            longitudeDeg = longitudeDeg * -1;
-
-        double speedKnots = gprmcR.cap(7).toDouble();
-        double speedKmh = speedKnots * 1.852;
-        double courseDeg = gprmcR.cap(8).toDouble();
-        QDate gpsDate = QDate::fromString(gprmcR.cap(9), "ddMMyy");
-//        if ( gpsValid )
-//            qDebug() << "GPRMC time=" << gpsTime.toString() << " lat=" << latitude << latNS << " long=" << longitude << longEW << " speed[km/h]=" << speedKmh;
-//        else
-//            qDebug() << "GPRMC invalid";
-
-#if defined ( Q_WS_MAEMO_5 )  || defined ( Q_OS_ANDROID )
-        coordinate = QGeoCoordinate(latitudeDeg, longitudeDeg);
-        //docu says ground speed, in metres/sec.
-        //but internal gps gives km/h
-        //-> set km/h to be compatible
-//        posInfo.setAttribute(QGeoPositionInfo::GroundSpeed, speedKnots * 0.514444 * 3.6);
-        posInfo.setAttribute(QGeoPositionInfo::GroundSpeed, speedKmh);
-        //The timestamp must be in UTC time.
-        posInfo.setTimestamp( QDateTime(gpsDate, gpsTime, Qt::UTC) );
-#endif
-//        parseBuffer.remove(match, gprmcR.matchedLength());
-    } else {
-        allData = false;
-    }
-    //Global Positioning System Fix Data
-    //$GPGGA,212634.000,4909.4139,N,00702.2037,E,1,9,1.40,202.7,M,47.8,M,,*54
-    QRegExp gpggaR ("\\$GPGGA,([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w\\*]*)");
-    match = gpggaR.indexIn(parseBuffer);
-    if ( match > -1 ) {
-        QTime gpsTime = QTime::fromString(gpggaR.cap(1), "hhmmss.zzz");
-        double latitude = gpggaR.cap(2).toDouble();
-        QString latNS = gpggaR.cap(3);
-        double longitude = gpggaR.cap(4).toDouble();
-        QString longEW = gpggaR.cap(5);
-        // fix quality - 0 = Invalid / 1 = GPS fix / 2 = DGPS fix
-        quint8 fixQuality = gpggaR.cap(6).toInt();
-        quint8 numSatInView = gpggaR.cap(7).toInt();
-        //Horizontal Dilution of Precision (HDOP)	1.5	Relative accuracy of horizontal position
-        double hdop = gpggaR.cap(8).toDouble();
-        //Altitude	280.2, M	280.2 meters above mean sea level
-        double altitude = gpggaR.cap(9).toDouble();
-        //Height of geoid above WGS84 ellipsoid	-34.0, M	-34.0 meters
-        double heigthAboveWGS84 = gpggaR.cap(10).toDouble();
-        //Time since last DGPS update	blank	No last update
-        double timeSinceLastDGPSUpdate = gpggaR.cap(11).toDouble();
-        //DGPS reference station id	blank	No station id
-        double DGPSrefStationId = gpggaR.cap(12).toDouble();
-        //Checksum	*75	Used by program to check for transmission errors
-        QString checksum = gpggaR.cap(13);
-
-#else
     //XXYY.ZZZZ
     QRegularExpression WGS84 ("(\\d\\d)(\\d\\d\\.\\d\\d\\d\\d)");
     //$GPRMC,HHMMSS,A,BBBB.BBBB,b,LLLLL.LLLL,l,GG.G,RR.R,DDMMYY,M.M,m,F*PP
     //$GPRMC,213337.500,A,4909.4154,N,00702.2017,E,0.19,63.13,211013,,,A*52
-    QRegularExpression gprmcR ("\\$GPRMC,([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w\\*]*)\\r\\n");
+    QRegularExpression gprmcR ("\\$GPRMC,([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w\\*]*)");
     QRegularExpressionMatch match = gprmcR.match(parseBuffer);
     if ( match.hasMatch() ) {
         QTime gpsTime = QTime::fromString(match.captured(1), "hhmmss.zzz");
@@ -212,10 +123,10 @@ $GPRMC,232241.000,A,4909.4071,N,00702.2012,E,0.33,26.15,201013,,,A*59
             gpsValid = true;
         QString latitude = match.captured(3);
         double latitudeDeg=666;
-        QRegularExpressionMatch lmatch = WGS84.match(latitude);
-        if ( lmatch.hasMatch() ) {
+        QRegularExpressionMatch wgsMatch = WGS84.match(latitude);
+        if ( wgsMatch.hasMatch() ) {
             //XXYY.ZZZZ ⇒ XX° + (YY.ZZZZ / 60)°
-            latitudeDeg = lmatch.captured(1).toInt() + ( lmatch.captured(2).toDouble() / 60 );
+            latitudeDeg = wgsMatch.captured(1).toInt() + ( wgsMatch.captured(2).toDouble() / 60 );
         }
         //A positive latitude indicates the Northern Hemisphere, and a negative latitude indicates the Southern Hemisphere.
         QString latNS = match.captured(4);
@@ -224,10 +135,10 @@ $GPRMC,232241.000,A,4909.4071,N,00702.2012,E,0.33,26.15,201013,,,A*59
 
         QString longitude = match.captured(5);
         double longitudeDeg=666;
-        lmatch = WGS84.match(longitude);
-        if ( lmatch.hasMatch() ) {
+        QRegularExpressionMatch lonMatch = WGS84.match(longitude);
+        if ( lonMatch.hasMatch() ) {
             //XXYY.ZZZZ ⇒ XX° + (YY.ZZZZ / 60)°
-            longitudeDeg = lmatch.captured(1).toInt() + ( lmatch.captured(2).toDouble() / 60 );
+            longitudeDeg = lonMatch.captured(1).toInt() + ( lonMatch.captured(2).toDouble() / 60 );
         }
         //A positive longitude indicates the Eastern Hemisphere, and a negative longitude indicates the Western Hemisphere.
         QString longEW = match.captured(6);
@@ -243,7 +154,7 @@ $GPRMC,232241.000,A,4909.4071,N,00702.2012,E,0.33,26.15,201013,,,A*59
 //        else
 //            qDebug() << "GPRMC invalid";
 
-#if defined ( Q_WS_MAEMO_5 )  || defined ( Q_OS_ANDROID )
+#if defined ( QT_MAEMO5_ENABLE )  || defined ( Q_OS_ANDROID )
         coordinate = QGeoCoordinate(latitudeDeg, longitudeDeg);
         //docu says ground speed, in metres/sec.
         //but internal gps gives km/h
@@ -260,30 +171,29 @@ $GPRMC,232241.000,A,4909.4071,N,00702.2012,E,0.33,26.15,201013,,,A*59
     //Global Positioning System Fix Data
     //$GPGGA,212634.000,4909.4139,N,00702.2037,E,1,9,1.40,202.7,M,47.8,M,,*54
     QRegularExpression gpggaR ("\\$GPGGA,([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w]*),([\\.\\w\\*]*)");
-    match = gpggaR.match(parseBuffer);
-    if ( match.hasMatch() ) {
-        QTime gpsTime = QTime::fromString(match.captured(1), "hhmmss.zzz");
-        double latitude = match.captured(2).toDouble();
-        QString latNS = match.captured(3);
-        double longitude = match.captured(4).toDouble();
-        QString longEW = match.captured(5);
+    QRegularExpressionMatch ggaMatch = gpggaR.match(parseBuffer);
+    if ( ggaMatch.hasMatch() ) {
+        QTime gpsTime = QTime::fromString(ggaMatch.captured(1), "hhmmss.zzz");
+        double latitude = ggaMatch.captured(2).toDouble();
+        QString latNS = ggaMatch.captured(3);
+        double longitude = ggaMatch.captured(4).toDouble();
+        QString longEW = ggaMatch.captured(5);
         // fix quality - 0 = Invalid / 1 = GPS fix / 2 = DGPS fix
-        quint8 fixQuality = match.captured(6).toInt();
-        quint8 numSatInView = match.captured(7).toInt();
+        quint8 fixQuality = ggaMatch.captured(6).toInt();
+        quint8 numSatInView = ggaMatch.captured(7).toInt();
         //Horizontal Dilution of Precision (HDOP)	1.5	Relative accuracy of horizontal position
-        double hdop = match.captured(8).toDouble();
+        double hdop = ggaMatch.captured(8).toDouble();
         //Altitude	280.2, M	280.2 meters above mean sea level
-        double altitude = match.captured(9).toDouble();
+        double altitude = ggaMatch.captured(9).toDouble();
         //Height of geoid above WGS84 ellipsoid	-34.0, M	-34.0 meters
-        double heigthAboveWGS84 = match.captured(10).toDouble();
+        double heigthAboveWGS84 = ggaMatch.captured(10).toDouble();
         //Time since last DGPS update	blank	No last update
-        double timeSinceLastDGPSUpdate = match.captured(11).toDouble();
+        double timeSinceLastDGPSUpdate = ggaMatch.captured(11).toDouble();
         //DGPS reference station id	blank	No station id
-        double DGPSrefStationId = match.captured(12).toDouble();
+        double DGPSrefStationId = ggaMatch.captured(12).toDouble();
         //Checksum	*75	Used by program to check for transmission errors
-        QString checksum = match.captured(13);
-#endif
-#if defined ( Q_WS_MAEMO_5 )  || defined ( Q_OS_ANDROID )
+        QString checksum = ggaMatch.captured(13);
+#if defined ( QT_MAEMO5_ENABLE )  || defined ( Q_OS_ANDROID )
         coordinate.setAltitude(altitude);
 #endif
     } else {
@@ -293,7 +203,7 @@ $GPRMC,232241.000,A,4909.4071,N,00702.2012,E,0.33,26.15,201013,,,A*59
     //$GPGSV
     //GPS Satellites in view
 
-#if defined ( Q_WS_MAEMO_5 )  || defined ( Q_OS_ANDROID )
+#if defined ( QT_MAEMO5_ENABLE )  || defined ( Q_OS_ANDROID )
     if ( allData ) {
         //we have valid Data!
         qDebug() << "valid data " << posInfo.coordinate().toString();

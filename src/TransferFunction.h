@@ -47,16 +47,7 @@ class TransferFunction250kpa : public TransferFunction
     int name () { return 250; }
 };
 
-#if defined (DIGIFANTVANAPP)
-//! use 100kpa selection for AFM: input 0-255, output to volts
-class TransferFunction100kpa : public TransferFunction
-{
-    /** input 0-255, out kpa
-      **/
-    double map ( double input ) { return (5.0 * (input/255)); }
-    int name () { return 100; }
-};
-#else
+
 //! Freescale MPXA6115A 100kpa
 class TransferFunction100kpa : public TransferFunction
 {
@@ -65,7 +56,6 @@ class TransferFunction100kpa : public TransferFunction
     double map ( double input ) { return ((5.0 * (input/255.0)) + 0.475) / 0.045; }
     int name () { return 100; }
 };
-#endif
 
 //! Freescale 300kpa
 class TransferFunction300kpa : public TransferFunction
@@ -76,47 +66,5 @@ class TransferFunction300kpa : public TransferFunction
     int name () { return 300; }
 };
 
-/** wideband lambda */
-class TransferFunctionWbLambdaTechEdge : public TransferFunction {
-    double map ( double input ) { double l = ( (5.0*( ( input) /1023)) * 2 + 9 ) / 14.7; return static_cast<double>(static_cast<int>(l*100+0.5))/100.0; }
-    int name () { return -1; }
-};
-
-class TransferFunctionWbLambdaPlx : public TransferFunction {
-    double map ( double input ) { double l = ( (5.0*( ( input) /1023)) * 2 + 10 ) / 14.7; return static_cast<double>(static_cast<int>(l*100+0.5))/100.0; }
-    int name () { return -1; }
-};
-
-class TransferFunctionWbLambdaInnovateLC1 : public TransferFunction {
-    double map ( double input ) { double l =  ( (5.0*( (input) /1023)) * 3 + 7.35 ) / 14.7;  return static_cast<double>(static_cast<int>(l*100+0.5))/100.0; }
-    int name () { return -1; }
-};
-class TransferFunctionWbLambdaInnovateLM1 : public TransferFunction {
-    double map ( double input ) { double l =  ( (5.0*( (input) /1023)) * 2 + 10.0 ) / 14.7;  return static_cast<double>(static_cast<int>(l*100+0.5))/100.0; }
-    int name () { return -1; }
-};
-class TransferFunctionWbLambdaZeitronix : public TransferFunction {
-    double map ( double input ) { double l = ( (5.0*( (input) /1023)) * 2 + 9.6 ) / 14.7;  return static_cast<double>(static_cast<int>(l*100+0.5))/100.0;}
-    int name () { return -1; }
-};
-class TransferFunctionWbLambdaDummy : public TransferFunction {
-    double map ( double input ) { return input; }
-    int name () { return -99; }
-};
-class TransferFunctionWbLambdaRawDebug : public TransferFunction {
-    double map ( double input ) { return input; }
-    int name () { return -98; }
-};
-class TransferFunctionWbLambdaBreitbandLambdaDe40 : public TransferFunction {
-    double map ( double input ) { double l = (5.0*( ( input) /1023)) * 0.12 + 0.7; return static_cast<double>(static_cast<int>(l*100+0.5))/100.0; }
-    int name () { return -1; }
-};
-//!
-//! \brief The TransferFunctionWbLambdaAEM for AEM X-Series P/N 30-0300 https://www.aemelectronics.com/files/instructions/30-0300.pdf
-//!
-class TransferFunctionWbLambdaAEMXSeries : public TransferFunction {
-    double map ( double input ) { double l = (5.0*( ( input) /1023)) * 0.1621 + 0.499; return l; }
-    int name () { return -1; }
-};
 
 #endif // TRANSFERFUNCTION_H

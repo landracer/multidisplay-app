@@ -97,7 +97,7 @@ void ReplayWorker::update() {
         if ( (*replayIt)->getSensorR() != NULL ) {
             int next = ( (*replayIt)->getSensorR()->getTime() - dr->getSensorR()->getTime() ) / controller->getReplaySpeedUpFactor();
 
-#ifndef Q_WS_MAEMO_5
+#ifndef QT_MAEMO5_ENABLE
             emit showStatusMessage( QString ("replay mode (") + QString::number(replayedItemCount) + QString (" / ") + QString::number(dataList->count()) + QString(")") );
 #endif
             t->start (next);

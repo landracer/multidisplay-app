@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>274</width>
-    <height>219</height>
+    <width>258</width>
+    <height>186</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -107,16 +107,6 @@
           <item>
            <property name="text">
             <string>/dev/ttyACM0</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>bluetooth</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>/dev/tty.usbserial-*</string>
            </property>
           </item>
           <item>

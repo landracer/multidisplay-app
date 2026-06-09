@@ -13,9 +13,6 @@ class MdDataRecord;
 class DFExtendedWidget;
 class VR6Widget;
 
-/**
- * @brief The RealTimeVis class implements the widget which visualizes all measurement values
- */
 class RealTimeVis : public QWidget
 {
     Q_OBJECT
@@ -23,17 +20,10 @@ public:
     explicit RealTimeVis(QWidget *parent = 0);
 
 signals:
-    void showStatusMessage ( const QString& );
 
 public slots:
     void visualize (MdDataRecord *d);
     void possibleCfgChange ();
-
-    void triggerEmitShowStatusMessage ( const QString & msg ) { emit showStatusMessage(msg); };
-    void showMessage (const QString &msg, const int forSeconds=0);
-    void showStatusMessageAsOverlay ( const QString &msg );
-    void showMessage3 (const QString &msg);
-    void hideMessage ();
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
@@ -42,15 +32,12 @@ protected:
 
     void switchEcu ();
 
-    bool isDigifantApp();
-    bool isMultidisplayApp();
     bool mdMode();
 private:
-    QGridLayout *gl = nullptr;
     QwtThermo *boostT;
-    BarGraphWidget *bg1 = nullptr;
-    BarGraphWidget *bg2 = nullptr;
-    BarGraphWidget *bg3 = nullptr;
+    BarGraphWidget *bg1;
+    BarGraphWidget *bg2;
+    BarGraphWidget *bg3;
 
     MeasurementWidget *boostW;
     MeasurementWidget *lambdaW;
@@ -64,15 +51,12 @@ private:
     FuelPressureWidget *fuelW;
     MeasurementWidget *rpmW;
 
-    QPointer<Overlay> testOverlay = nullptr;
-    QPointer<MessageOverlay> topOverlay = nullptr;
-    QPointer<MessageOverlay> middleOverlay = nullptr;
-    QPointer<MessageOverlay> bottomOverlay = nullptr;
+    Overlay* overlay;
 
     QFrame *fDfWidget;
     QFrame *fVr6Widget;
 
-    QElapsedTimer timer;
+    QElapsedTimer t;
 };
 
 #endif // REALTIMEVIS_H

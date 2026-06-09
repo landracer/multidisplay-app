@@ -20,15 +20,14 @@
 #ifndef MDQSERIALPORTCOM_H
 #define MDQSERIALPORTCOM_H
 
-#include <com/MdAbstractCom.h>
+#include "com/MdAbstractCom.h"
 
 class QSerialPort;
 
 class MdQSerialPortCom : public MdAbstractCom
 {
-    Q_OBJECT
 public:
-    MdQSerialPortCom(QObject *parent = nullptr);
+    MdQSerialPortCom(QObject *parent = 0);
     ~MdQSerialPortCom();
 
 public slots:
@@ -47,7 +46,7 @@ protected slots:
     void onReadyRead();
 
 protected:
-    QSerialPort *port = nullptr;
+    QSerialPort *port;
 };
 
 #endif // MDQSERIALPORTCOM_H

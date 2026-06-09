@@ -10,15 +10,15 @@ V2PowerDialog::V2PowerDialog(QWidget *parent) :
     ui->setupUi(this);
     plot = new PowerPlot((QMainWindow*)this, (QWidget*) ui->groupBox);
 
-    connect (ui->pressureSpinBox, SIGNAL(valueChanged(int)), plot, SLOT(setDinAirPressure(int)));
-    connect (ui->tempSpinBox, SIGNAL(valueChanged(int)), plot, SLOT(setDinTemp(int)));
-    connect (ui->carMassSpinBox, SIGNAL(valueChanged(int)), plot, SLOT(setCarMass(int)));
-    connect (ui->smoothSpinBox, SIGNAL(valueChanged(int)), plot, SLOT(setSmoothAmount(int)));
-    connect (ui->driveTrainLossSpinBox, SIGNAL(valueChanged(double)), plot, SLOT(setDriveTrainLoss(double)));
+    connect (ui->pressureSpinBox, &QSpinBox::valueChanged, plot, &PowerPlot::setDinAirPressure);
+    connect (ui->tempSpinBox, &QSpinBox::valueChanged, plot, &PowerPlot::setDinTemp);
+    connect (ui->carMassSpinBox, &QSpinBox::valueChanged, plot, &PowerPlot::setCarMass);
+    connect (ui->smoothSpinBox, &QSpinBox::valueChanged, plot, &PowerPlot::setSmoothAmount);
+    connect (ui->driveTrainLossSpinBox, &QDoubleSpinBox::valueChanged, plot, &PowerPlot::setDriveTrainLoss);
 
-    connect (ui->reCalcButton, SIGNAL(clicked()), plot, SLOT(reCalculate()) );
+    connect (ui->reCalcButton, &QPushButton::clicked, plot, &PowerPlot::reCalculate);
 
-    connect (plot, SIGNAL(resultString(QString)), ui->resultLineEdit, SLOT(setText(QString)));
+    connect (plot, &PowerPlot::resultString, ui->resultLineEdit, &QLineEdit::setText);
 
     ui->pressureSpinBox->setValue(plot->dinAirPressure());
     ui->tempSpinBox->setValue(plot->dinTemp());
