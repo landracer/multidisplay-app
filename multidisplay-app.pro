@@ -1,12 +1,13 @@
 #
 TEMPLATE = subdirs
 CONFIG   += ordered
-SUBDIRS  = libs/qwt-6.1.1 \
+SUBDIRS  = qwt-6.2.0/qwt.pro \
 	   src
 
-lessThan(QT_MAJOR_VERSION, 5) {
-    SUBDIRS+=libs/qextserialport
-}
+# Qt 6 compatibility - removed Qt 5 version checks
+# lessThan(QT_MAJOR_VERSION, 5) {
+#     SUBDIRS+=libs/qextserialport
+# }
 
 
 OTHER_FILES += \

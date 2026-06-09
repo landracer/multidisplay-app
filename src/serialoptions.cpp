@@ -24,8 +24,8 @@ SerialOptionsDialog::SerialOptionsDialog(QWidget *parent)
     : QDialog(parent)
 {
 	ui.setupUi(this);
-    connect(ui.SerialOptionsButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(ui.SerialOptionsButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(ui.SerialOptionsButtonBox, &QDialogButtonBox::accepted, this, &SerialOptionsDialog::accept);
+    connect(ui.SerialOptionsButtonBox, &QDialogButtonBox::rejected, this, &SerialOptionsDialog::reject);
 
 }
 

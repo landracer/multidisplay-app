@@ -20,7 +20,7 @@ signals:
     void requestGearboxData ();
 
 protected slots:
-    void loadDefaultTransmission ( const QString & text );
+    void loadDefaultTransmission ( int index );
     void loadMdGearboxData(quint8, double g1, double g2, double g3, double g4, double g5, double g6);
     void myacceptedSlot();
 

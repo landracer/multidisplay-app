@@ -5,7 +5,7 @@
 #include <QObject>
 #include <com/MdAbstractCom.h>
 
-#if defined ( Q_WS_MAEMO_5 )
+#if defined ( QT_MAEMO5_ENABLE )
     #include <QGeoPositionInfo>
     QTM_USE_NAMESPACE
 #endif
@@ -46,7 +46,7 @@ signals:
     void portOpened();
     void portClosed();
 
-#if defined ( Q_WS_MAEMO_5 )  || defined ( Q_OS_ANDROID )
+#if defined ( QT_MAEMO5_ENABLE )  || defined ( Q_OS_ANDROID )
     void positionUpdated(const QGeoPositionInfo &update);
 #endif
 
@@ -68,7 +68,7 @@ protected:
 //#endif
 
 
-#if defined ( Q_WS_MAEMO_5 ) || defined (Q_OS_ANDROID)
+#if defined ( QT_MAEMO5_ENABLE ) || defined (Q_OS_ANDROID)
     QGeoCoordinate coordinate;
     QGeoPositionInfo posInfo;
 #endif

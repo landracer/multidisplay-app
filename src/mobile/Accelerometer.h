@@ -6,7 +6,7 @@
 
 #include <QAccelerometer>
 
-#if defined Q_WS_MAEMO_5
+#if defined QT_MAEMO5_ENABLE
 QTM_USE_NAMESPACE
 #endif
 

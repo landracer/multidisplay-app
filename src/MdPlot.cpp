@@ -70,7 +70,7 @@ MdPlot::MdPlot( QMainWindow* mw, QWidget* parent, QTableView *tableView ) {
 //    d_zoomer[1] = new MdPlotZoomer(QwtPlot::xTop, QwtPlot::yRight, this->canvas());
 
     d_panner = new QwtPlotPanner(this->canvas());
-    d_panner->setMouseButton(Qt::MidButton);
+    d_panner->setMouseButton(Qt::MiddleButton);
 
     //qwt5
 //    d_picker[0] = new MdPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
@@ -110,7 +110,7 @@ MdPlot::MdPlot( QMainWindow* mw, QWidget* parent, QTableView *tableView ) {
 
     this->tableView = tableView;
 
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     //http://doc.qt.nokia.com/qt-maemo-4.6/gestures-overview.html
     grabGesture(Qt::PanGesture);
     grabGesture(Qt::PinchGesture);

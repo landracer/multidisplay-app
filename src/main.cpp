@@ -30,7 +30,7 @@
 int main(int argc, char *argv[]) {
 
     try {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
         QApplication::setStyle(QString("Plastique"));
 #endif
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
         AppEngine *e = AppEngine::getInstance();
         e->show();
 
-//#ifndef Q_WS_MAEMO_5
+//#ifndef QT_MAEMO5_ENABLE
         //Windows / Linux Desktop GUI
     //    MultidisplayUIMainWindow mw;
     //    mw.show();

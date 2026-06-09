@@ -25,7 +25,7 @@
 #include "serialoptions.h"
 #include "evaluation/evaluationwindow.h"
 
-#if defined (Q_WS_MAEMO_5)
+#if defined (QT_MAEMO5_ENABLE)
 #include <QSystemScreenSaver>
 QTM_USE_NAMESPACE
 #endif
@@ -46,7 +46,6 @@ public:
 
     void showExpanded();
     bool event(QEvent *event);
-    bool gestureEvent(QGestureEvent *event);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -59,7 +58,7 @@ public slots:
 
 private:
     Ui::MobileMainWindow *ui;
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     QSystemScreenSaver *screensaver;
 #endif
 };

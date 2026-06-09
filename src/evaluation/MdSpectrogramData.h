@@ -21,6 +21,8 @@
 #define MDSPECTOGRAMDATA_H_
 
 #include <qwt_raster_data.h>
+#include <QRectF>
+#include <qwt_interval.h>
 
 class MdSpectrogramData : public QwtRasterData {
 public:
@@ -31,6 +33,7 @@ public:
     virtual QwtRasterData *copy() const;
 //    virtual QwtDoubleInterval range() const;
     virtual double value(double x, double y) const;
+    virtual QwtInterval interval(Qt::Axis axis) const;
 
 
     double mapValue ( const double &val ) const;

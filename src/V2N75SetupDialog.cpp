@@ -10,7 +10,7 @@
 #include <QtGlobal>
 #include <AppEngine.h>
 
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     #include <QtMaemo5>
     #include <QMaemo5InformationBox>
 #endif
@@ -49,14 +49,12 @@ V2N75SetupDialog::V2N75SetupDialog(QWidget *parent) :
 
 
     qDebug() << ui->n75comboBox->currentText();
-    connect (ui->n75comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(n75modeChanged(int)) );
-    connect (ui->n75WritePushButton, SIGNAL(clicked()), this, SLOT(n75writeSlow()));
-    connect (ui->n75ReadPushButton, SIGNAL(clicked()), this, SLOT(n75readSlow()));
+    connect (ui->n75comboBox, &QComboBox::currentIndexChanged, this, &V2N75SetupDialog::n75modeChanged);
+    connect (ui->n75WritePushButton, &QPushButton::clicked, this, &V2N75SetupDialog::n75writeSlow);
+    connect (ui->n75ReadPushButton, &QPushButton::clicked, this, &V2N75SetupDialog::n75readSlow);
 
-    connect (t, SIGNAL(timeout()), this, SLOT(timerUpdateRead()));
-    t->setSingleShot(true);
-    connect (wt, SIGNAL(timeout()), this, SLOT(timerUpdateWrite()));
-    wt->setSingleShot(true);
+    connect (t, &QTimer::timeout, this, &V2N75SetupDialog::timerUpdateRead);
+    connect (wt, &QTimer::timeout, this, &V2N75SetupDialog::timerUpdateWrite);
 
     n75Settings = new N75PidSettingsWidget (this);
     ui->n75TableGroupBox->layout()->addWidget (n75Settings);
@@ -170,10 +168,10 @@ void V2N75SetupDialog::timerUpdateWrite () {
         wt->start(25);
     else {
         next_gear_write = 99;
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
         QMessageBox::information(this, "N75 maps", "write complete", QMessageBox::Ok);
 #endif
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
         QMaemo5InformationBox::information ( this, "write complete", 0 );
 #endif
     }
@@ -243,7 +241,7 @@ void V2N75SetupDialog::n75SetpointMap (quint8 gear, quint8 mode, quint8 serial, 
 void V2N75SetupDialog::showEvent ( QShowEvent * event ) {
     wait_for_n75_map_frame = false;
     write_wait_for_ack_serial = 0;
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     dashboardActualizeSave = AppEngine::getInstance()->getActualizeDashboard() ;
     vis1ActualizeSave = AppEngine::getInstance()->getActualizeVis1();
     AppEngine::getInstance()->setActualizeDashboard( false );
@@ -252,7 +250,7 @@ void V2N75SetupDialog::showEvent ( QShowEvent * event ) {
 }
 
 void V2N75SetupDialog::closeEvent ( QCloseEvent * event ) {
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     AppEngine::getInstance()->setActualizeDashboard( dashboardActualizeSave );
     AppEngine::getInstance()->setActualizeVis1( vis1ActualizeSave );
 #endif

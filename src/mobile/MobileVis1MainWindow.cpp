@@ -29,12 +29,12 @@ MobileVis1MainWindow::MobileVis1MainWindow(QWidget *parent) :
     ui(new Ui::MobileVis1MainWindow)
 {
     ui->setupUi(this);
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 
-#if  defined (Q_WS_X11)  && !defined (Q_WS_MAEMO5)
-    qDebug()  << "Q_WS_X11";
+#if  defined (Q_OS_LINUX)  && !defined (ANDROID)
+    qDebug()  << "Q_OS_LINUX";
     //http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
     //http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
     ui->ReplayStopButton->setIcon(  QIcon::fromTheme ("media-playback-start") );

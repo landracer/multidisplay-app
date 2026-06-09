@@ -3,7 +3,15 @@ the multidisplay project is an opensource datalogger, bosst controller and displ
 
 this multidisplay-app project (mUI) is a qt app as graphical frontend to the in-car installed multidisplay hardware. we are building apps for pc (linux, windows) and smartphone (android, maemo) out of the source code tree (thanks to the wonderful qt framework).
 
-features of the multidisplay-app (mUI) qt app:
+## Qt6 Port Status
+This application has been successfully ported from Qt5 to Qt6. The port includes all necessary compatibility fixes for modern Qt6 environments.
+
+### Requirements for Running mUI (Qt6 Version)
+- Linux desktop system with Qt6 libraries installed
+- System libqwt-qt6 package (or built from source)
+- Bluetooth or USB connectivity to multidisplay hardware
+
+Features of the multidisplay-app (mUI) qt app:
 * bluetooth or usb connection to the multidisplay hardware in the car
 * data logging (including 10Hz GPS)
 * configure the multidisplay hardware (eg map sensor size, data acquisition frequency etc).

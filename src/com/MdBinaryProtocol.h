@@ -2,7 +2,7 @@
 #define MDBINARYPROTOCOL_H
 
 #include <QObject>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QTimer>
 
 
@@ -141,8 +141,8 @@ protected:
     Map16x1_NTC_IAT *dfIatMap;
     Map16x1_Voltage *dfVoltageMap;
 
-    QTime timeHelper;
-    QTime freqMeasure;
+    QElapsedTimer timeHelper;
+    QElapsedTimer freqMeasure;
 
     //debug data generation
     int debugRPMCounter;

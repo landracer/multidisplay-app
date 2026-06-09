@@ -30,7 +30,7 @@ EvalPlotData::EvalPlotData (double xleft, double xright, double step) : xleft(xl
 	yData.resize(ecount + 1);
 
 	double x = xleft;
-	for ( int i = 0 ; i < ecount ; i++ ) {
+	for ( size_t i = 0 ; i < ecount ; i++ ) {
 		xData[i]=x;
 		yData[i]=0;
 		x += step;
@@ -90,7 +90,7 @@ QVector<double> EvalPlotDataSimple::y () const {
 //	return -666;
 //}
 double EvalPlotDataSimple::sample (size_t i) const {
-	if ( (i>=0) && (i < xData.size()) )
+	if ( i < xData.size() )
 		return yData[i];
 	return -666;
 }

@@ -56,7 +56,7 @@ private:
     QFrame *fDfWidget;
     QFrame *fVr6Widget;
 
-    QTime t;
+    QElapsedTimer t;
 };
 
 #endif // REALTIMEVIS_H

@@ -83,9 +83,9 @@ void LambdaBarGraphWidget::wotOn() {
 
 /* ************************************ */
 
-#if !defined (Q_WS_MAEMO_5) && !defined(Q_OS_ANDROID)
+#if !defined (QT_MAEMO5_ENABLE) && !defined(Q_OS_ANDROID)
 GLGauge::GLGauge ( QWidget *parent )
-    : QGLWidget (parent) {
+    : QWidget (parent) {
 //    : QFrame (parent) {
 
 }
@@ -275,7 +275,7 @@ uint MeasurementWidget::calcMaxFontPixelSize ( uint width, uint height, float mi
         QFont cf2 = QFont ();
         cf2.setPointSize(captionPointSize);
         QFontMetrics fm2 = QFontMetrics(cf2);
-        mywidth = mywidth - fm2.width(caption);
+        mywidth = mywidth - fm2.horizontalAdvance(caption);
     }
 
 
@@ -284,7 +284,7 @@ uint MeasurementWidget::calcMaxFontPixelSize ( uint width, uint height, float mi
 
     while (!found) {
         fm = QFontMetrics(cf);
-        uint w = fm.width(ss);
+        uint w = fm.horizontalAdvance(ss);
         uint h = fm.height();
 
         //qDebug() << "w=" << w << " h=" << h << " mywidht=" << mywidth << " ss=" << ss << " pointSize=" << cf.pointSize() ;
@@ -329,10 +329,10 @@ uint MeasurementWidget::calcMaxFontPointSizeByGivenHeight( uint width, uint heig
     uint counter = 0;
     while (!found) {
         uint th = fm.lineSpacing() * lines;
-        if ( ( th > 0.95 * height ) || ( QFontMetrics(cf).width("9") * lineCharCount > width ) )
+        if ( ( th > 0.95 * height ) || ( QFontMetrics(cf).horizontalAdvance("9") * lineCharCount > width ) )
             cf.setPointSize( cf.pointSize()/2 );
         if ( th < 0.85 * height ) {
-            uint tlw = QFontMetrics(cf).width("9") * lineCharCount;
+            uint tlw = QFontMetrics(cf).horizontalAdvance("9") * lineCharCount;
             if (tlw < width * 0.85) {
                 if ( ( tlw < width * 0.5 ) && ( th < height * 0.5) )
                     cf.setPointSize( cf.pointSize() * 2 );
@@ -357,7 +357,7 @@ uint MeasurementWidget::calcMaxFontPointSizeByGivenHeight( uint width, uint heig
             break;
         }
     }
-    if ( fm.width("9") * lineCharCount > width )
+    if ( fm.horizontalAdvance("9") * lineCharCount > width )
         qDebug() << "MeasurementWidget::calcMaxFontPixelSize( uint width, uint height, uint lines, uint lineCharCount )" << " THIS SOULD not happen!";
 
     return cf.pointSize();
@@ -434,7 +434,7 @@ void MaxEgtWidget::paint() {
 
     if ( valTxt2PaintL2 != "" ) {
         painter.setFont(textFont);
-#ifndef Q_WS_MAEMO_5
+#ifndef QT_MAEMO5_ENABLE
         //        painter.drawText( QRect(0, (wideMode==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20, this->size().width(), this->size().height() ),
         //                          Qt::AlignRight, valTxt2PaintL2 );
         int h = (lowHeigth==false ? textFont.pointSize() : 0) + dataFont.pointSize() + 20;

@@ -127,7 +127,7 @@ void PowerPlot::setData ( QList<MdDataRecord*>&dl, QList<int> &rn, bool useGpsSp
     rowNums = rn;
 
     //clean data -> remove rows without changing speed!
-    qSort (rowNums.begin(), rowNums.end());
+    std::sort (rowNums.begin(), rowNums.end());
     QList<int> removeIdx;
     for ( quint32 i = 0 ; i < rowNums.size() ; i++ ) {
         if ( i>0) {
@@ -659,7 +659,7 @@ QMap<qreal,SpeedData> PowerPlot::calculateTimeBetweenSpeeds ( QList<MdDataRecord
     int idx_endh = 0;
 
     //sort ascending
-    qSort (rn.begin(), rn.end());
+    std::sort (rn.begin(), rn.end());
 
     bool upperFound = false;
     foreach ( int i, rn ) {
@@ -715,7 +715,7 @@ QMap<qreal,SpeedData> PowerPlot::calculateTimeBetweenSpeeds ( QList<MdDataRecord
 QMap<qreal, SpeedData> PowerPlot::calculateAdditionalDataTimeBetweenSpeeds( QList<MdDataRecord*>&dl, QList<int> &rn, qreal speedL, qreal speedH, bool useGps ) {
     QMap<qreal,SpeedData> timeTable;
     //sort ascending
-    qSort (rn.begin(), rn.end());
+    std::sort (rn.begin(), rn.end());
 
     qreal first_time = 0;
     qreal alt_old = 0;
@@ -779,7 +779,7 @@ QMap<qreal,SpeedData> PowerPlot::calculateTimeBetweenSpeedsGPS ( QList<MdDataRec
     int idx_endh = 0;
 
     //sort ascending
-    qSort (rn.begin(), rn.end());
+    std::sort (rn.begin(), rn.end());
 
     bool upperFound = false;
     foreach ( int i, rn ) {

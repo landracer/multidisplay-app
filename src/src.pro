@@ -4,15 +4,16 @@ TARGET = mUI
 QT += core \
     gui \
     widgets \
-    opengl
+    opengl \
+    bluetooth \
+    serialport
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += bluetooth sensors positioning
-    !android: QT += serialport
-}
+# Qt 6 compatibility - updated for Qt 6 modules
+# Removed Qt 5 specific version checks
+# QT += bluetooth sensors positioning  # These are now separate modules or removed
+# !android: QT += serialport  # Serial port is now part of Qt6
 
-
-CONFIG += rtti exceptions mobility serialport
+CONFIG += rtti exceptions
 
 #qDebug() to console
 win32: CONFIG += console
@@ -24,17 +25,19 @@ android {
     QT += svg androidextras
 }
 
-maemo5 {
-    QT += maemo5 mobility svg
-}
+# Qt 6 compatibility - removed maemo5 support
+# maemo5 {
+#     QT += maemo5 mobility svg
+# }
 
-MOBILITY += location systeminfo sensors
+# Qt 6 compatibility - mobility has been removed, use separate modules
+# MOBILITY += location systeminfo sensors  # Removed in Qt 6
 
 android {
     #necessitas sets Q_OS_ANDROID
     DEFINES += ANDROID
-    #legacy -> remove!
-    DEFINES+= Q_WS_ANDROID
+    # Qt 6 compatibility - Q_WS_ANDROID removed, use Q_OS_ANDROID
+    DEFINES+= Q_OS_ANDROID
     message ("android define set!")
 }
 
@@ -212,12 +215,12 @@ FORMS += evaluation/evaluationwindow.ui \
 maemo5:FORMS += mobile/MobileEvaluationDialog.ui
 
 unix:INCLUDEPATH = ../libs/qextserialport/src \
-    ../libs/qwt-6.1.1/src
+    ../qwt-6.2.0/src
 
 
 
 win32:INCLUDEPATH = $$quote(..\libs\qextserialport\src) \
-                    $$quote(..\libs\qwt-6.1.1\src)
+                    $$quote(..\qwt-6.2.0\src)
 
 #win32 static
 #2011-06-29 broken
@@ -252,18 +255,18 @@ win32:INCLUDEPATH = $$quote(..\libs\qextserialport\src) \
                         lessThan(QT_MAJOR_VERSION, 5) {
                             unix:LIBS += -L ../libs/qextserialport/src/build -lqextserialportd
                         }
-                        unix:LIBS += -L../libs/qwt-6.1.1/lib -lqwt
+                        unix:LIBS += -lqwt-qt6
                       }
             android:  {
                         message("android: static linking!")
-                        unix:LIBS += ../libs/qwt-6.1.1/lib/libqwt.a
+                        unix:LIBS += ../qwt-6.2.0/lib/libqwt.a
                        }
             maemo5:    {
 #                        message ("Maemo5: static linking!")
 #                        unix:LIBS += ../libs/qextserialport/src/build/libqextserialportd.a \
 #                                     ../libs/qwt-6.1.1/lib/libqwtd.a
                         message ("Maemo5: static qwt6 linking, dynamic qextserialport!")
-                        unix:LIBS += ../libs/qwt-6.1.1/lib/libqwt.a -L../libs/qextserialport/src/build -lqextserialport
+                        unix:LIBS += ../qwt-6.2.0/lib/libqwt.a -L../libs/qextserialport/src/build -lqextserialport
                         }
         }
 
@@ -272,21 +275,21 @@ win32:INCLUDEPATH = $$quote(..\libs\qextserialport\src) \
         !android:!maemo5 {
                         message ("UNIX pure")
                         unix:LIBS += ../libs/qextserialport/src/build/libqextserialport.a \
-                        -L ../libs/qwt-6.1.1/lib -lqwt
+                        -lqwt-qt6
         }
         win32:{
                 lessThan(QT_MAJOR_VERSION, 5) {
                     LIBS += -L $$quote(..\libs\qextserialport\src\build) -lqextserialport1
                 }
-                    LIBS += -L $$quote(../libs/qwt-6.1.1/lib) -lqwt
+                    LIBS += -lqwt-qt6
         }
         android:  {
             message("android: static linking!")
-            unix:LIBS += ../libs/qwt-6.1.1/lib/libqwt.a
+            unix:LIBS += ../qwt-6.2.0/lib/libqwt.a
         }
         maemo5: {
             message ("Maemo5: static qwt6 linking, dynamic qextserialport!")
-            unix:LIBS += ../libs/qwt-6.1.1/lib/libqwt.a -L../libs/qextserialport/src/build -lqextserialport
+            unix:LIBS += ../qwt-6.2.0/lib/libqwt.a -L../libs/qextserialport/src/build -lqextserialport
         }
     }
 }

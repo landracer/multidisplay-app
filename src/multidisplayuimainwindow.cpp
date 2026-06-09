@@ -36,7 +36,7 @@ MultidisplayUIMainWindow::MultidisplayUIMainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     setAttribute(Qt::WA_Maemo5StackedWindow);
 #endif
 
@@ -50,7 +50,7 @@ MultidisplayUIMainWindow::MultidisplayUIMainWindow(QWidget *parent)
     dfMapActionGroup->addAction(ui.action300kpa);
     dfMapActionGroup->addAction(ui.action400kpa);
 
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
     //http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
     //http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
     ui.PlayButton->setIcon(  QIcon::fromTheme ("media-playback-start") );

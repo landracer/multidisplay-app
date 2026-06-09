@@ -10,7 +10,7 @@ GearSettingsDialog::GearSettingsDialog(QWidget *parent) :
     ui(new Ui::GearSettingsDialog)
 {
     ui->setupUi(this);
-    connect (ui->comboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(loadDefaultTransmission(QString)));
+    connect (ui->comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(loadDefaultTransmission(int)));
     connect (this, SIGNAL(accepted()), this, SLOT(myacceptedSlot()));
 }
 
@@ -47,10 +47,10 @@ void GearSettingsDialog::myacceptedSlot() {
                             99) );
 }
 
-void GearSettingsDialog::loadDefaultTransmission ( const QString & text ) {
+void GearSettingsDialog::loadDefaultTransmission ( int index ) {
     double gear_ratio[6];
 
-    if ( text == "02A ATB" ) {
+    if ( index == 0 ) {
         //Corrado 02A ATB
         gear_ratio[0] = 13.0341;
         gear_ratio[1] = 7.26225;

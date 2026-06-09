@@ -1,0 +1,5 @@
+QMAKE_PRL_BUILD_DIR = /home/sysadmin/Documents/multidisplay-app/multidisplay-app/qwt-6.2.0/src
+QMAKE_PRO_INPUT = src.pro
+QMAKE_PRL_TARGET = libqwt.so.6.2.0
+QMAKE_PRL_CONFIG = silent lex yacc exceptions testcase_targets import_plugins import_qpa_plugin file_copies qmake_use qt warn_on release link_prl incremental nostrip shared plugin_manifest intelcet glibc_fortify_source trivial_auto_var_init_pattern stack_protector stack_clash_protection libstdcpp_assertions relro_now_linker linux unix posix gcc qt warn_on no_keywords release dll create_pc create_prl no_install_prl have_target shared dll thread link_ltcg link_ltcg link_ltcg link_ltcg uic link_ltcg link_ltcg opengl link_ltcg link_ltcg moc resources
+QMAKE_PRL_VERSION = 6.2.0

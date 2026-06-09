@@ -103,7 +103,7 @@ void Map16x1_NTC_ECT::testIt () {
     v.append(2);
 
     foreach ( int i,  v ) {
-        qDebug() << "df val=" << i << " mapped value=" << mapValue(i) << endl;
+        qDebug() << "df val=" << i << " mapped value=" << mapValue(i) << Qt::endl;
     }
 }
 
@@ -175,7 +175,7 @@ void Map16x1_NTC_IAT::testIt () {
     v.append(2);
 
     foreach ( int i,  v ) {
-        qDebug() << "df val=" << i << " mapped value=" << mapValue(i) << endl;
+        qDebug() << "df val=" << i << " mapped value=" << mapValue(i) << Qt::endl;
     }
 }
 

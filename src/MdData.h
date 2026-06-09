@@ -31,7 +31,6 @@
 #include <list>
 
 #include <QList>
-#include <QLinkedList>
 #include <QVector>
 #include <QString>
 #include <QDataStream>
@@ -365,7 +364,7 @@ private:
     V2PowerDialog* powerDialog;
     WotEventsDialog* wotEventsDialog;
 
-    QLinkedList<MdPlot*> plotList;
+    std::list<MdPlot*> plotList;
 
     QTableView* dataView;
 

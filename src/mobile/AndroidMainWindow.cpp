@@ -1,6 +1,8 @@
 #include <QCloseEvent>
 #include <QtCore/qmath.h>
 #include <QDebug>
+#include <QGestureEvent>
+#include <QElapsedTimer>
 
 #include "AndroidMainWindow.h"
 #include "ui_AndroidMainWindow.h"
@@ -19,7 +21,6 @@ AndroidMainWindow::AndroidMainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 
-     t = QTime::currentTime();
      t.start();
 
      grabGesture(Qt::TapGesture);
@@ -47,30 +48,21 @@ AndroidMainWindow::~AndroidMainWindow()
 
 bool AndroidMainWindow::event(QEvent *event)
 {
-    if (event->type() == QEvent::Gesture)
-        return gestureEvent(static_cast<QGestureEvent*>(event));
+    if (event->type() == QEvent::Gesture) {
+        QGestureEvent *gEvent = static_cast<QGestureEvent*>(event);
+        if (QGesture *swipe = gEvent->gesture(Qt::SwipeGesture))
+            qDebug() << "swipe";
+        else if (QGesture *pan = gEvent->gesture(Qt::PanGesture))
+            qDebug() << "pan";
+        if (QGesture *pinch = gEvent->gesture(Qt::PinchGesture))
+            qDebug() << "pinch";
+        if (QGesture *tap = gEvent->gesture(Qt::TapGesture))
+            qDebug() << "tap";
+        if (QGesture *tapAndHold = gEvent->gesture(Qt::TapAndHoldGesture))
+            qDebug() << "tap and hold";
+        return true;
+    }
     return QWidget::event(event);
-}
-
-bool AndroidMainWindow::gestureEvent(QGestureEvent *event)
-{
-    qDebug() << "gestureEvent():" << event->gestures().size();
-    if (QGesture *swipe = event->gesture(Qt::SwipeGesture))
-//        swipeTriggered(static_cast<QSwipeGesture *>(swipe));
-        qDebug() << "swipe";
-    else if (QGesture *pan = event->gesture(Qt::PanGesture))
-//        panTriggered(static_cast<QPanGesture *>(pan));
-        qDebug() << "pan";
-    if (QGesture *pinch = event->gesture(Qt::PinchGesture))
-//        pinchTriggered(static_cast<QPinchGesture *>(pinch));
-        qDebug() << "pinch";
-    if (QGesture *tap = event->gesture(Qt::TapGesture))
-//        pinchTriggered(static_cast<QPinchGesture *>(pinch));
-        qDebug() << "tap";
-    else if (QGesture *tapAndHold = event->gesture(Qt::TapAndHoldGesture))
-        //        pinchTriggered(static_cast<QPinchGesture *>(pinch));
-                qDebug() << "tap and hold";
-    return true;
 }
 
 void AndroidMainWindow::closeEvent(QCloseEvent *event) {

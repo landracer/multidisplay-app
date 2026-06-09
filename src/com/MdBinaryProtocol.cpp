@@ -6,7 +6,7 @@
 
 #include <QDebug>
 #include <AppEngine.h>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QTimer>
 #include <QSettings>
 
@@ -24,9 +24,7 @@ MdBinaryProtocol::MdBinaryProtocol(QObject *parent, MdData *data, MdAbstractCom 
     dfEctMap = new Map16x1_NTC_ECT();
     dfIatMap = new Map16x1_NTC_IAT();
     dfVoltageMap = new Map16x1_Voltage();
-    timeHelper = QTime::currentTime();
     timeHelper.start();
-    freqMeasure = QTime::currentTime();
     freqMeasure.start();
 
     QSettings settings("MultiDisplay", "UI");
@@ -65,6 +63,7 @@ void MdBinaryProtocol::closePort()
 bool MdBinaryProtocol::changePortSettings (QString sport, QString speed) {
     if (ac)
         ac->changePortSettings(sport,speed);
+    return true;
 }
 
 void MdBinaryProtocol::onPortOpened()
@@ -364,7 +363,7 @@ void MdBinaryProtocol::convertReceivedMd2Frame() {
 //             << efr_speed_tmp << " freq=" << 1000000/efr_speed_tmp << "Hz speed=" << efr_speed << " RPM"
 //             << " DataOut " << ((millisElapsed > 0) ? 1000/millisElapsed : -1) << " Hz";
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     ;
 #else
     qDebug() << " DataOut " << ((millisElapsed > 0) ? 1000/millisElapsed : -1) << " Hz";
@@ -462,7 +461,7 @@ void MdBinaryProtocol::convertReceivedMd2Frame() {
     double df_voltage = dfVoltageMap->mapValue(df_voltage_raw);
 
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     ;
 #else
     if ( ! df_connected ) {

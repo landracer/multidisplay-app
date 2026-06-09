@@ -329,7 +329,7 @@ void MdSerialComBinary::convertReceivedMd2Frame() {
 //             << efr_speed_tmp << " freq=" << 1000000/efr_speed_tmp << "Hz speed=" << efr_speed << " RPM"
 //             << " DataOut " << ((millisElapsed > 0) ? 1000/millisElapsed : -1) << " Hz";
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     ;
 #else
     qDebug() << " DataOut " << ((millisElapsed > 0) ? 1000/millisElapsed : -1) << " Hz";
@@ -425,7 +425,7 @@ void MdSerialComBinary::convertReceivedMd2Frame() {
     double df_voltage = dfVoltageMap->mapValue(df_voltage_raw);
 
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
     ;
 #else
     if ( ! df_connected ) {

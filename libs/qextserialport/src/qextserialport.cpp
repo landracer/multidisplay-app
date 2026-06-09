@@ -122,7 +122,7 @@ void QextSerialPort::construct()
     Settings.StopBits=STOP_1;
     Settings.FlowControl=FLOW_HARDWARE;
     Settings.Timeout_Millisec=500;
-    mutex = new QMutex( QMutex::Recursive );
+    mutex = new QMutex();
     setOpenMode(QIODevice::NotOpen);
 }
 

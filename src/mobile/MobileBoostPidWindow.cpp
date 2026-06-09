@@ -25,7 +25,7 @@ MobileBoostPidWindow::MobileBoostPidWindow(QWidget *parent) :
     ui(new Ui::MobileBoostPidWindow)
 {
     ui->setupUi(this);
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
         setAttribute(Qt::WA_Maemo5StackedWindow);
 
 #endif

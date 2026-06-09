@@ -107,7 +107,7 @@ N75TableWidget::N75TableWidget(quint8 mode, QWidget *parent) :
     setRowCount(12);
     QStringList rl;
 
-#if defined (Q_WS_MAEMO_5) || defined(ANDROID)
+#if defined (QT_MAEMO5_ENABLE) || defined(ANDROID)
     rl.append("1. dc");
     rl.append("1. bst");
     rl.append("2. dc");

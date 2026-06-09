@@ -26,7 +26,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QTableWidget>
 #include <QDesktopServices>
 #include <QDir>
@@ -77,7 +77,7 @@
     #include <QtAndroid>
 #endif
 
-#if defined (Q_WS_MAEMO_5) || defined(ANDROID)
+#if defined (QT_MAEMO5_ENABLE) || defined(ANDROID)
 #include "mobile/MobileGPS.h"
 #include "mobile/Accelerometer.h"
 #include "mobile/AndroidN75Dialog.h"
@@ -90,7 +90,7 @@ AppEngine* AppEngine::getInstance() {
 
 AppEngine::AppEngine() {
 
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     qDebug() << "desktop version";
     pcmw = new MultidisplayUIMainWindow ();
     mmw = NULL;
@@ -128,7 +128,7 @@ AppEngine::AppEngine() {
     actualizeVis1 = true;
     actualizeDashboard = true;
 
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     //http://doc.trolltech.com/qt-maemo-4.6/platform-notes-maemo5.html
 
     qDebug() << "QT_WS_MAEMO_5 mobile version";
@@ -219,13 +219,13 @@ AppEngine::AppEngine() {
 
     connect (replay, SIGNAL(clearPlots()), data, SLOT(clearPlots()) );
 
-#if  !defined (Q_WS_MAEMO_5)  && !defined (Q_OS_ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (Q_OS_ANDROID)
     connect (replay, SIGNAL(showStatusMessage(QString)), pcmw, SLOT(showStatusMessage(QString)), Qt::QueuedConnection );
 #endif
     connect (replay, SIGNAL(visualizeDataRecord(MdDataRecord*,bool)), data, SLOT(visualizeDataRecord(MdDataRecord*,bool)), Qt::QueuedConnection );
 
 
-#if  defined (Q_WS_MAEMO_5)  || defined (Q_OS_ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (Q_OS_ANDROID)
     setupMobile();
 #else
     setupPC();
@@ -377,7 +377,7 @@ void AppEngine::setupPC() {
 }
 
 void AppEngine::setupMobile() {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     setupMaemo();
 #endif
 #ifdef Q_OS_ANDROID
@@ -471,7 +471,7 @@ void AppEngine::setupMaemo() {
 
     connect ( v2SettingsDialog, SIGNAL(cfgDialogAccepted()), rtvis, SLOT(possibleCfgChange()) );
 
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     QSettings settings("MultiDisplay", "UI");
     if ( settings.value("mobile/use_gps", QVariant(true)).toBool() )
         mGps = new MobileGPS (this);
@@ -582,11 +582,11 @@ void AppEngine::setupAndroid () {
 }
 
 void AppEngine::show() {
-#if  !defined (Q_WS_MAEMO_5)  && !defined (Q_OS_ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (Q_OS_ANDROID)
     //Windows / Linux Desktop GUI
     pcmw->show();
 #endif
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     //Maemo Stacked Windows
     mmw->showMaximized();
     mmw->statusBar()->hide();
@@ -614,7 +614,7 @@ void AppEngine::saveData () {
 #endif
 
     data->saveData(path);
-#if  defined (Q_WS_MAEMO_5)  || defined (Q_OS_ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (Q_OS_ANDROID)
     if ( mGps ) {
         mGps->saveTrack (path + ".track");
         mGps->saveTrackBinary (path + ".trackB");
@@ -650,7 +650,7 @@ void AppEngine::saveDataAs () {
                                                 "mdv2 (*.mdv2)");
     if ( fn != "") {
         data->saveData(fn);
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
         if ( mGps ) {
             mGps->saveTrack (fn + ".track");
             mGps->saveTrackBinary (fn + ".trackB");
@@ -669,7 +669,7 @@ void AppEngine::openData ( QString fn ) {
         directory = QFileInfo(fn).path(); // store path for next time
         qDebug() << "directory " << directory;
 
-#ifdef Q_WS_MAEMO5
+#ifdef QT_MAEMO5_ENABLE
         mmw->setAttribute(Qt::WA_Maemo5ShowProgressIndicator);
 #endif
         mds->closePort();
@@ -684,11 +684,11 @@ void AppEngine::openData ( QString fn ) {
         setActualizeDashboard( dashboardActualizeSave );
         setActualizeVis1( vis1ActualizeSave );
 
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
         mmw->setAttribute(Qt::WA_Maemo5ShowProgressIndicator, false);
 #endif
 
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
         emit showStatusBarSampleCount( QString::number(data->size()) );
 #endif
 
@@ -711,7 +711,7 @@ void AppEngine::clearData () {
     if ( replay && ( replayThread->isRunning() || replayThread->isFinished() ) )
         replay->stop();
 #endif
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     emit showStatusMessage( QString::number(data->size()) );
 #endif
 }
@@ -769,7 +769,7 @@ void AppEngine::changeDataWinSize (int ns) {
 void AppEngine::writeSettings () {
     QSettings settings;
 
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     settings.beginGroup("MainWindow");
     settings.setValue("size", pcmw->size());
     settings.setValue("pos", pcmw->pos());
@@ -801,7 +801,7 @@ void AppEngine::writeSettings () {
     settings.setValue ("MapSensor", dfBoostTransferFunction->name() );
     settings.endGroup();
 
-#if  defined (Q_WS_MAEMO_5) || defined (Q_OS_ANDROID)
+#if  defined (QT_MAEMO5_ENABLE) || defined (Q_OS_ANDROID)
     if ( mGps )
         settings.setValue("mobile/use_gps", QVariant(true) );
     else
@@ -826,7 +826,7 @@ void AppEngine::writeSettings () {
 void AppEngine::readSettings () {
     QSettings settings("MultiDisplay", "UI");
 
-#if !defined(Q_WS_MAEMO_5) && !defined(ANDROID)
+#if !defined(QT_MAEMO5_ENABLE) && !defined(ANDROID)
     settings.beginGroup("MainWindow");
     pcmw->resize(settings.value("size", QSize(800, 480)).toSize());
     pcmw->move(settings.value("pos", QPoint(200, 200)).toPoint());
@@ -887,11 +887,11 @@ void AppEngine::closeEvent(QCloseEvent *event) {
 
 
 void AppEngine::replayData() {
-#if defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID
+#if defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     replaySpeedUpFactor = mvis1w->ui->ReplaySpinBox->value();
     replayStartAtPos = data->getVisPlot()->windowBegin();
 #endif
-#if not defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID
+#if not defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     if ( !pcmw->ui.ReplayCurPos->isChecked() )
         replayStartAtPos = 0;
     else
@@ -901,18 +901,18 @@ void AppEngine::replayData() {
 
     replayThread->start();
 
-#if defined Q_WS_MAEMO_5 and not defined Q_OS_ANDROID
+#if defined QT_MAEMO5_ENABLE and not defined Q_OS_ANDROID
     DataViewSlider->setValue( DataViewSlider->minimum() );
 #endif
 }
 
 void AppEngine::changeDVSliderUp() {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     DataViewSlider->setValue( DataViewSlider->value() - DataViewSlider->singleStep() );
 #endif
 }
 void AppEngine::changeDVSliderDown() {
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     DataViewSlider->setValue( DataViewSlider->value() + DataViewSlider->singleStep() );
 #endif
 }

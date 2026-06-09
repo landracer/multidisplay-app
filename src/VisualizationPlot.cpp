@@ -228,7 +228,7 @@ VisualizationPlot::VisualizationPlot(QMainWindow* mw, QWidget *parent, QTableVie
     gearCurve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (gearData) );
     n75Curve->setSamples ( dynamic_cast<QwtSeriesData<QPointF>* > (n75Data) );
 
-#ifndef Q_WS_MAEMO_5
+#ifndef QT_MAEMO5_ENABLE
     QwtLegend *legend = new QwtLegend();
     legend->setDefaultItemMode( QwtLegendData::Clickable );
     //    legend->setItemMode(QwtLegend::CheckableItem);
@@ -287,7 +287,7 @@ void VisualizationPlot::addRecord(MdSensorRecord *r, bool doReplot) {
 
 void VisualizationPlot::pointSelected(const QPointF &pos) {
     quint32 millis = pos.x() * 60000;
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     if ( tableView ) {
         MdData* md = dynamic_cast<MdData*> (tableView->model());
         if ( md ) {
@@ -324,7 +324,7 @@ void VisualizationPlot::removeLastMarker () {
         m->detach();
         delete (m);
         replot();
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
         if ( tableView ) {
             MdData* md = dynamic_cast<MdData*> (tableView->model());
             if ( md ) {

@@ -60,8 +60,8 @@ protected:
 };
 
 
-#if !defined (Q_WS_MAEMO_5) && !defined(Q_OS_ANDROID)
-class GLGauge : public QGLWidget {
+#if !defined (QT_MAEMO5_ENABLE) && !defined(Q_OS_ANDROID)
+class GLGauge : public QWidget {
 //class GLGauge : public QFrame {
 #else
 class GLGauge : public QFrame {

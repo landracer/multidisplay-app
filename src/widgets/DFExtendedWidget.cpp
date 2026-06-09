@@ -61,11 +61,11 @@ DFExtendedWidget::DFExtendedWidget ( QWidget *parent, QString caption, double lo
 bool DFExtendedWidget::event(QEvent *event)
 {
     if (event->type() == QEvent::Gesture)
-        return gestureEvent(static_cast<QGestureEvent*>(event));
+        return gestureEvent(static_cast<QEvent*>(event));
     return QWidget::event(event);
 }
 
-bool DFExtendedWidget::tapAndHoldTriggered(QTapAndHoldGesture *pTapHold)
+bool DFExtendedWidget::tapAndHoldTriggered(QGesture *pTapHold)
 {
     if ( injduty_max > 0 )
         injduty_max = 0;
@@ -75,57 +75,59 @@ bool DFExtendedWidget::tapAndHoldTriggered(QTapAndHoldGesture *pTapHold)
     return true;
 }
 
-bool DFExtendedWidget::swipeTriggered(QSwipeGesture *pSwipe) {
+bool DFExtendedWidget::swipeTriggered(QGesture *pSwipe) {
     bool result = false;
 
     if (pSwipe->state() == Qt::GestureFinished) {
-       qDebug("Swipe angle: %f", pSwipe->swipeAngle());
-       switch (SwipeGestureUtil::GetHorizontalDirection(pSwipe)) {
-          case QSwipeGesture::Left:
-             qDebug("Swipe Left detected");
-             result = true;
-             break;
-          case QSwipeGesture::Right:
-             qDebug("Swipe Right detected");
-             result = true;
-             break;
-          default:
-             break;
-       }
-       switch (SwipeGestureUtil::GetVerticalDirection(pSwipe)) {
-          case QSwipeGesture::Up:
-             qDebug("Swipe Up detected");
-             result = true;
-             break;
-          case QSwipeGesture::Down:
-             qDebug("Swipe Down detected");
-             result = true;
-             break;
-          default:
-             break;
+       QSwipeGesture* swipe = qobject_cast<QSwipeGesture*>(pSwipe);
+       if (swipe) {
+           switch (SwipeGestureUtil::GetHorizontalDirection(swipe)) {
+              case QSwipeGesture::Left:
+                 qDebug("Swipe Left detected");
+                 result = true;
+                 break;
+              case QSwipeGesture::Right:
+                 qDebug("Swipe Right detected");
+                 result = true;
+                 break;
+              default:
+                 break;
+           }
+           switch (SwipeGestureUtil::GetVerticalDirection(swipe)) {
+              case QSwipeGesture::Up:
+                 qDebug("Swipe Up detected");
+                 result = true;
+                 break;
+              case QSwipeGesture::Down:
+                 qDebug("Swipe Down detected");
+                 result = true;
+                 break;
+              default:
+                 break;
+           }
        }
     }
     return result;
 }
 
-bool DFExtendedWidget::gestureEvent(QGestureEvent *event)
+bool DFExtendedWidget::gestureEvent(QEvent *event)
 {
-    qDebug() << "gestureEvent():" << event->gestures().size();
-    if (QGesture *swipe = event->gesture(Qt::SwipeGesture)) {
-        swipeTriggered(static_cast<QSwipeGesture *>(swipe));
-        qDebug() << "swipe";
-    } else if (QGesture *pan = event->gesture(Qt::PanGesture))
-//        panTriggered(static_cast<QPanGesture *>(pan));
-        qDebug() << "pan";
-    if (QGesture *pinch = event->gesture(Qt::PinchGesture))
-//        pinchTriggered(static_cast<QPinchGesture *>(pinch));
-        qDebug() << "pinch";
-    if (QGesture *tap = event->gesture(Qt::TapGesture))
-//        tapTriggered(static_cast<QPinchGesture *>(tap));
-        qDebug() << "tap";
-    else if (QGesture *tapAndHold = event->gesture(Qt::TapAndHoldGesture)) {
-        tapAndHoldTriggered(static_cast<QTapAndHoldGesture *>(tapAndHold));
-        qDebug() << "tap and hold";
+    if (event->type() == QEvent::Gesture) {
+        QGestureEvent *gEvent = static_cast<QGestureEvent*>(event);
+        if (QGesture *swipe = gEvent->gesture(Qt::SwipeGesture)) {
+            swipeTriggered(static_cast<QGesture *>(swipe));
+            qDebug() << "swipe";
+        }
+        if (QGesture *pan = gEvent->gesture(Qt::PanGesture))
+            qDebug() << "pan";
+        if (QGesture *pinch = gEvent->gesture(Qt::PinchGesture))
+            qDebug() << "pinch";
+        if (QGesture *tap = gEvent->gesture(Qt::TapGesture))
+            qDebug() << "tap";
+        if (QGesture *tapAndHold = gEvent->gesture(Qt::TapAndHoldGesture)) {
+            tapAndHoldTriggered(static_cast<QGesture *>(tapAndHold));
+            qDebug() << "tap and hold";
+        }
     }
     return true;
 }
@@ -317,11 +319,11 @@ void DFExtendedWidget::paint() {
     QString racemode = "knock detection ON";
 
     if ( setPositionForCol(fm.lineSpacing(),2) )
-        w = fm.width(lc+2);
+        w = fm.horizontalAdvance(lc + QString("2"));
     if ( df_lc_flags & 16) {
         racemode = "knock detection OFF";
         painter.fillRect( QRect(w, h - fm.lineSpacing(),
-                                fm.width (racemode), fm.height() ), Qt::red);
+                                fm.horizontalAdvance(racemode), fm.height() ), Qt::red);
     }
     painter.drawText( QPoint(w, h), racemode );
 

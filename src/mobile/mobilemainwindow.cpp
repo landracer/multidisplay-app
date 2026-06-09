@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QGestureEvent>
 
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     #include <QtMaemo5>
     #include <QMaemo5InformationBox>
 #endif
@@ -34,7 +34,7 @@ MobileMainWindow::MobileMainWindow(QWidget *parent) :
     ui(new Ui::MobileMainWindow)
 {
     ui->setupUi(this);
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     setAttribute(Qt::WA_Maemo5StackedWindow);
 
     //broken on N900 !
@@ -44,7 +44,7 @@ MobileMainWindow::MobileMainWindow(QWidget *parent) :
     grabGesture(Qt::SwipeGesture);
 #endif
 
-#if  defined (Q_WS_MAEMO_5)
+#if  defined (QT_MAEMO5_ENABLE)
     screensaver = new QSystemScreenSaver (this);
     screensaver->setScreenSaverInhibit ();
     qDebug() << "Screensaver deactivated";
@@ -61,7 +61,7 @@ MobileMainWindow::~MobileMainWindow()
 void MobileMainWindow::showStatusMessage (QString msg) {
     //http://doc.qt.nokia.com/qt-maemo-4.6/qmaemo5informationbox.html#details
     qDebug() << "status msg " << msg;
-#ifdef Q_WS_MAEMO_5
+#ifdef QT_MAEMO5_ENABLE
     QMaemo5InformationBox::information ( this, msg, 0 );
 #endif
 }
@@ -76,29 +76,22 @@ bool MobileMainWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::Gesture) {
         qDebug() << "gesture";
-        return gestureEvent(static_cast<QGestureEvent*>(event));
+        QGestureEvent *gEvent = static_cast<QGestureEvent*>(event);
+        if (QGesture *swipe = gEvent->gesture(Qt::SwipeGesture))
+            qDebug() << "swipe";
+        else if (QGesture *pan = gEvent->gesture(Qt::PanGesture))
+            qDebug() << "pan";
+        if (QGesture *pinch = gEvent->gesture(Qt::PinchGesture))
+            qDebug() << "pinch";
+        return true;
     }
     return QWidget::event(event);
-}
-
-bool MobileMainWindow::gestureEvent(QGestureEvent *event)
-{
-    if (QGesture *swipe = event->gesture(Qt::SwipeGesture))
-//        swipeTriggered(static_cast<QSwipeGesture *>(swipe));
-        qDebug() << "swipe";
-    else if (QGesture *pan = event->gesture(Qt::PanGesture))
-//        panTriggered(static_cast<QPanGesture *>(pan));
-        qDebug() << "pan";
-    if (QGesture *pinch = event->gesture(Qt::PinchGesture))
-//        pinchTriggered(static_cast<QPinchGesture *>(pinch));
-        qDebug() << "pinch";
-    return true;
 }
 
 void MobileMainWindow::showExpanded() {
 #ifdef Q_OS_SYMBIAN
     showFullScreen();
-#elif defined(Q_WS_MAEMO_5)
+#elif defined(QT_MAEMO5_ENABLE)
     showMaximized();
 #else
     show();

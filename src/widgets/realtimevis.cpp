@@ -7,6 +7,7 @@
 
 #include <QVBoxLayout>
 #include <QTime>
+#include <QElapsedTimer>
 #include <QSettings>
 
 
@@ -24,7 +25,7 @@ RealTimeVis::RealTimeVis(QWidget *parent):
     h->setSpacing(0);
     this->setLayout(h);
 
-#if !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     bg1 = new BoostBarGraphWidget (this);
 //    bg2 = new LambdaBarGraphWidget (this);
     bg2 = NULL;
@@ -119,7 +120,6 @@ RealTimeVis::RealTimeVis(QWidget *parent):
         fWidgets2->hide();
     }
 
-    t = QTime::currentTime();
     t.start();
 }
 

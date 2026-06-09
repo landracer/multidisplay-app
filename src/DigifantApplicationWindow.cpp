@@ -39,7 +39,6 @@ DigifantApplicationWindow::DigifantApplicationWindow(QWidget *parent) :
      l->setHorizontalSpacing(0);
      l->setVerticalSpacing(0);
 
-     t = QTime::currentTime();
      t.start();
 }
 

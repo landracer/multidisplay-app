@@ -40,9 +40,11 @@
 #include <QtCore/qmath.h>
 #include <math.h>
 #include <QSplashScreen>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QProgressBar>
 
-#if  defined (Q_WS_MAEMO_5)  || defined (ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (ANDROID)
 #include "mobile/Accelerometer.h"
 #include "mobile/MobileGPS.h"
 #endif
@@ -189,7 +191,8 @@ MdData::MdData (QMainWindow* mw_boost, QWidget* parent_boost, QMainWindow* mw_vi
 
     connect ( wotEventsDialog, SIGNAL(jumpToDataIdx(int)), this, SLOT(showDataListIdx(int)) );
 
-    splash = new QSplashScreen (parent_boost);
+    splash = new QSplashScreen (QPixmap());
+    splash->setParent(parent_boost);
     progressBar = new QProgressBar(parent_boost);
     splash->setLayout ( new QHBoxLayout () );
     splashLabel = new QLabel (splash);
@@ -229,7 +232,7 @@ MdData::~MdData() {
 }
 
 void MdData::writeSettings () {
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     QSettings settings("MultiDisplay", "UI");
     settings.beginGroup("DataTableView");
     for (int i=0 ; i<headerColNames.size() ; i++) {
@@ -239,7 +242,7 @@ void MdData::writeSettings () {
 #endif
 }
 void MdData::readSettings () {
-#if  !defined (Q_WS_MAEMO_5)  && !defined (ANDROID)
+#if  !defined (QT_MAEMO5_ENABLE)  && !defined (ANDROID)
     QSettings settings("MultiDisplay", "UI");
     settings.beginGroup("DataTableView");
     for (int i=0 ; i<headerColNames.size() ; i++) {
@@ -335,7 +338,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                     }
                 }
             }
-            qSort (rows.begin(), rows.end());
+            std::sort (rows.begin(), rows.end());
             emit showRecordInVis1( rows.at ( rows.size()/2 ) );
             qDebug() << "show in vis1 " << rows.at ( rows.size()/2 )  << " time=" << dataList.at(dataList.size() - rows.at ( rows.size()/2 ) - 1)->getSensorR()->getTime();
         }
@@ -360,7 +363,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                 }
             }
             if ( ! rows.isEmpty() ) {
-                qSort (rows.begin(), rows.end());
+                std::sort (rows.begin(), rows.end());
                 if ( a == dataViewContextMenuPowerPlotGPS )
                     powerDialog->powerPlot()->setData (dataList, rows, true);
                 else
@@ -389,7 +392,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                 }
             }
             if ( ! rows.isEmpty() ) {
-                qSort (rows.begin(), rows.end());
+                std::sort (rows.begin(), rows.end());
                 QMap<qreal,SpeedData> time = powerDialog->powerPlot()->calculateTimeBetweenSpeeds (dataList, rows, 100, 200);
                 qDebug() << "100-200km/h in " << QString::number(time[-1].time_s, 'f',2) << " msecs";
                 if ( time[-1].time_s > 0 ) {
@@ -430,7 +433,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
                 }
             }
             if ( ! rows.isEmpty() ) {
-                qSort (rows.begin(), rows.end());
+                std::sort (rows.begin(), rows.end());
                 QMap<qreal,SpeedData> time = powerDialog->powerPlot()->calculateTimeBetweenSpeedsGPS (dataList, rows, 100, 200);
                 qDebug() << "100-200km/h in " << time[-1].time_s << " msecs";
                 if ( time[-1].time_s > 0 ) {
@@ -454,7 +457,7 @@ void MdData::tableDataView_customContextMenu( const QPoint& pos) {
     if ( a==dataViewContextMenuSaveMarkedRows ) {
         //list is sorted
         QList<int> dr = helperGetUniqueRows ( select );
-        qSort (dr.begin(), dr.end());
+        std::sort (dr.begin(), dr.end());
         qDebug() << dr;
 //        qDebug() << "dataList.size() - dr.begin() - 1, dataList.size() - dr.end() - 1);
 #if QT_VERSION >= 0x050000
@@ -1037,7 +1040,7 @@ bool MdData::loadData ( const QString& filename ) {
 
     emit showStatusMessage ("Data loaded from File " + filename + " (" + QString::number(l) + " rows)");
 
-#if  defined (Q_WS_MAEMO_5)  || defined (Q_OS_ANDROID)
+#if  defined (QT_MAEMO5_ENABLE)  || defined (Q_OS_ANDROID)
     //disabled on mobile
     ;
 #else
@@ -1339,7 +1342,7 @@ QVariant MdData::data(const QModelIndex & index, int role) const {
         return dataList.at(r)->getColumn(index.column());
     }
 
-    if (role == Qt::BackgroundColorRole) {
+    if (role == Qt::BackgroundRole) {
         int r = dataList.size() - index.row() - 1;
         switch ( index.column() ) {
             case 3:
@@ -2087,7 +2090,7 @@ MdDataRecord::MdDataRecord ( ) {
 MdDataRecord::MdDataRecord(MdSensorRecord *sr) : sensorR(sr)  {
     mobileR = new MobileSensorRecord();
 
-#if defined ( Q_WS_MAEMO_5 )
+#if defined ( QT_MAEMO5_ENABLE )
     Accelerometer* a = AppEngine::getInstance()->getAccelerometer();
     MobileGPS* g = AppEngine::getInstance()->getGps();
 

@@ -1,7 +1,9 @@
 #include "MobileGPS.h"
 
 #include <QDebug>
+#if defined(QT_MAEMO5_ENABLE) || defined(Q_OS_ANDROID)
 #include <QGeoPositionInfoSource>
+#endif
 #include <QFile>
 #include <QSettings>
 
@@ -16,6 +18,7 @@ MobileGPS::MobileGPS(QObject *parent)
     millisToNextMdFrame = 0;
     gpsSerial=NULL;
 
+#if defined(QT_MAEMO5_ENABLE) || defined(Q_OS_ANDROID)
     QSettings settings("MultiDisplay", "UI");
     if ( settings.value("mobile/use_gps_internal", QVariant(true)).toBool() ) {
         qDebug() << "using internal gps";
@@ -41,7 +44,7 @@ MobileGPS::MobileGPS(QObject *parent)
             source->startUpdates();
         }
     } else {
-#if defined (Q_WS_MAEMO_5)
+#if defined (QT_MAEMO5_ENABLE)
         qDebug() << "use NMEA gps datastream on /dev/rfcomm5";
         gpsSerial = new MdGpsSerial();
         connect(gpsSerial, SIGNAL(positionUpdated(QGeoPositionInfo)),
@@ -55,9 +58,9 @@ MobileGPS::MobileGPS(QObject *parent)
 #endif
 
     }
-    freqMeasure = QTime::currentTime();
-    deltaMdFrame = QTime::currentTime();
+#endif
     freqMeasure.start();
+    deltaMdFrame.start();
 
 }
 
@@ -65,6 +68,7 @@ void MobileGPS::mdFrameReceived() {
     millisToNextMdFrame = deltaMdFrame.restart();
 }
 
+#if defined(QT_MAEMO5_ENABLE) || defined(Q_OS_ANDROID)
 void MobileGPS::positionUpdated(const QGeoPositionInfo &info) {
     elapsedSinceLastMdFrame = deltaMdFrame.restart();
     millisSinceLastGpsUpdate = freqMeasure.restart();
@@ -88,7 +92,7 @@ bool MobileGPS::saveTrack(QString fn) {
     if ( !file.open (QIODevice::WriteOnly | QIODevice::Truncate) )
             return false;
     QTextStream ts (&file);
-    ts << "#md timestamp\ttimedelta\tgps time\tgps coordinate\tgps speed\tgps directon\tGPSHorizontalAccuracy\tGPSVerticalAccuracy" << endl;
+    ts << "#md timestamp\ttimedelta\tgps time\tgps coordinate\tgps speed\tgps directon\tGPSHorizontalAccuracy\tGPSVerticalAccuracy" << Qt::endl;
     foreach (MdPos* e , track ) {
         if ( e->pos.isValid() ) {
             ts << e->time << '\t'
@@ -99,9 +103,9 @@ bool MobileGPS::saveTrack(QString fn) {
                << e->pos.attribute(QGeoPositionInfo::Direction) << '\t'
                << e->pos.attribute(QGeoPositionInfo::HorizontalAccuracy) << '\t'
                << e->pos.attribute(QGeoPositionInfo::VerticalAccuracy) << '\t'
-               << endl;
+               << Qt::endl;
         } else {
-            qDebug() << "no valid position!" << endl;
+            qDebug() << "no valid position!" << Qt::endl;
         }
     }
     file.close();
@@ -142,11 +146,11 @@ bool MobileGPS::loadTrack(QString fn)
             QString degreesMinutesSecondsWithHemisphereOptionalHeigth = l[3];
             QStringList dmsHs = degreesMinutesSecondsWithHemisphereOptionalHeigth.split(",");
             //            51° 5' 60.0" N, 10° 29' 60.0" E, 211.5m
-            QRegExp dmshR ("(\\d+)\\D\\s*(\\d+)\\D\\s*(\\d+)\\D\\s*(\\w)");
-            QRegExp heigthR ("(\\d+\\.\\d+)m");
+            QRegularExpression dmshR("(\\d+)\\D\\s*(\\d+)\\D\\s*(\\d+)\\D\\s*(\\w)");
+            QRegularExpression heigthR("(\\d+\\.\\d+)m");
 
             QGeoPositionInfo pi;
-            pi.setTimestamp( QDateTime::fromString( QString(line[2])) );
+            pi.setTimestamp( QDateTime::fromString( QString(l[2])) );
 
             //TODO fixme
 
@@ -184,16 +188,6 @@ bool MobileGPS::loadTrackBinary(QString fn)
     }
 }
 
-void MobileGPS::clearData()
-{
-    foreach (MdPos* p , track ) {
-        if ( p )
-            delete (p);
-        track.clear();
-    }
-}
-
-
 QDataStream &operator<<(QDataStream &s, MdPos *p)
 {
     s << p->time;
@@ -209,5 +203,13 @@ QDataStream &operator>>(QDataStream &s, MdPos *p)
     s >> p->pos;
     return s;
 }
+#endif // QT_MAEMO5_ENABLE || Q_OS_ANDROID
 
-
+void MobileGPS::clearData()
+{
+    foreach (MdPos* p , track ) {
+        if ( p )
+            delete (p);
+        track.clear();
+    }
+}

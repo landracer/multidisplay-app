@@ -21,7 +21,7 @@ public slots:
 
 protected:
     QGridLayout* l;
-    QTime t;
+    QElapsedTimer t;
     MeasurementWidget* boostw;
     DFExtendedWidget *dfexw;
     MeasurementWidget *lw;

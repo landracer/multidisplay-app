@@ -25,7 +25,6 @@ public:
     ~AndroidMainWindow();
 
     bool event(QEvent *event);
-    bool gestureEvent(QGestureEvent *event);
     void closeEvent(QCloseEvent *event);
     void resizeEvent ( QResizeEvent * event );
 
@@ -44,7 +43,7 @@ private:
     Ui::AndroidMainWindow *ui;
 
     QGridLayout* l;
-    QTime t;
+    QElapsedTimer t;
     MeasurementWidget* boostw;
     DFExtendedWidget *dfexw;
     MeasurementWidget *lw;
